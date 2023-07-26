@@ -26,7 +26,7 @@ public class InMemoryItemStorage implements ItemStorage {
     public Item addItem(Item item) {
         if (itemsList.containsKey(item.getId())) {
             log.info("Вещь с id: {} уже существует", item.getId());
-            throw new DataBaseException("Вещь уже существует");
+            throw new DataBaseException("Вещь уже существует, id: " + item.getId());
         }
 
         itemValidate(item);
@@ -35,21 +35,14 @@ public class InMemoryItemStorage implements ItemStorage {
         log.info("Добавлена вещь: {} ", item);
         Item.setItemIdCounter(Item.getItemIdCounter() + 1);
 
-        userStorage.getUser(item.getOwnerId())
-                .getUserItemsToShare()
-                .add(item.getId());
+        userStorage.addItemToUser(item);
 
         return item;
     }
 
     @Override
     public Item updItem(Item item) {
-        if (!userStorage.getUser(item.getOwnerId())
-                .getUserItemsToShare()
-                .contains(item.getId())) {
-            log.info("Вещь не найдена у пользователя с id: {} ", item.getOwnerId());
-            throw new DataBaseNotFoundException("Вещь не найдена у пользователя");
-        }
+        userStorage.checkUserHasItem(item);
 
         Item itemToUpdate = itemsList.get(item.getId());
 
@@ -77,8 +70,8 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public Item getItem(int itemId) {
         if (!itemsList.containsKey(itemId)) {
-            log.info("Вещь не найдена");
-            throw new DataBaseNotFoundException();
+            log.info("Вещь не найдена, id вещи: " + itemId);
+            throw new DataBaseNotFoundException("Вещь не найдена, id вещи: " + itemId);
         }
         return itemsList.get(itemId);
     }
@@ -87,7 +80,7 @@ public class InMemoryItemStorage implements ItemStorage {
     public List<Item> getUserItems(int userId) {
         if (!userStorage.getUsersList().containsKey(userId)) {
             log.info("Не найден пользователь с id: {} ", userId);
-            throw new DataBaseNotFoundException();
+            throw new DataBaseNotFoundException("Не найден пользователь с id: " + userId);
         }
         List<Item> items = new ArrayList<>();
         Set<Integer> userItems = userStorage
@@ -103,7 +96,7 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public List<Item> searchItem(String text) {
         List<Item> items = new ArrayList<>();
-        if (text.isBlank()) {
+        if (text == null || text.isBlank()) {
             return items;
         }
         for (Item i : itemsList.values()) {
@@ -137,4 +130,6 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new DataBaseException("Не указан статус доступности вещи.");
         }
     }
+
+
 }

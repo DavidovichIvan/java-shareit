@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.DataBaseException;
 import ru.practicum.shareit.exceptions.DataBaseNotFoundException;
 import ru.practicum.shareit.exceptions.ServerErrorException;
+import ru.practicum.shareit.item.Item;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User addUser(User user) {
         if (usersList.containsKey(user.getId())) {
             log.info("Пользователь с id: {} уже существует", user.getId());
-            throw new DataBaseException("Пользователь уже существует");
+            throw new DataBaseException("Пользователь с таким id уже существует, id: " + user.getId());
         }
 
         userValidate(user);
@@ -105,7 +106,7 @@ public class InMemoryUserStorage implements UserStorage {
     private void checkUserExists(int userId) {
         if (!usersList.containsKey(userId)) {
             log.info("Не существует пользователя с id: {} ", userId);
-            throw new DataBaseNotFoundException("Пользователь не существует");
+            throw new DataBaseNotFoundException("Пользователь c  таким id не существует, id: " + userId);
         }
     }
 
@@ -119,5 +120,24 @@ public class InMemoryUserStorage implements UserStorage {
                 throw new ServerErrorException("Пользователь с таким адресом уже зарегистрирован.");
             }
         }
+    }
+
+    @Override
+    public void addItemToUser(Item item) {
+        usersList.get(item.getOwnerId())
+                .getUserItemsToShare()
+                .add(item.getId());
+    }
+
+    @Override
+    public void checkUserHasItem(Item item) {
+        if (!usersList.get(item.getOwnerId())
+                .getUserItemsToShare()
+                .contains(item.getId())) {
+
+            log.info("Вещь не найдена у пользователя с id: {} ", item.getOwnerId());
+            throw new DataBaseNotFoundException("Вещь не найдена у пользователя c id: " + item.getOwnerId());
+        }
+
     }
 }

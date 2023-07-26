@@ -22,22 +22,27 @@ public class UserService {
     }
 
     public User addUser(User user) {
+        log.info("Запрос на добавление пользователя");
         return userStorage.addUser(user);
     }
 
     public User updateUser(User user) {
+        log.info("Запрос на обновление пользователя id: {} ", user.getId());
         return userStorage.updateUser(user);
     }
 
     public List<User> getAllUsers() {
+        log.info("Запрос списка всех пользователей");
         return userStorage.getAllUsers();
     }
 
     public User getUser(int id) {
+        log.info("Запрос на получение пользователя id: {} ", id);
         return userStorage.getUser(id);
     }
 
     public void deleteUser(int id) {
+        log.info("Запрос на удаление пользователя id: {} ", id);
         userStorage.deleteUser(id);
     }
 
