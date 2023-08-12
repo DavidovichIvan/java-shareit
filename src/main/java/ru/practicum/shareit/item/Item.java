@@ -41,7 +41,7 @@ public class Item {
     public Item(String name, String description, int ownerId) {
         this.name = name;
         this.description = description;
-        this.ownerId = ownerId; //хз по идее надо, добавил
+        this.ownerId = ownerId;
 
     }
 }

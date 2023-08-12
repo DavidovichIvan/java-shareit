@@ -17,12 +17,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-//@Transactional(readOnly = true)
 public class ItemService {
 
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
-   // private final UserRepository userRepository; //хз возможно не понадобится
     private final ItemValidator itemValidator;
     private final BookingValidator bookingValidator;
 
@@ -45,24 +43,19 @@ public class ItemService {
 
     public List<Item> getUserItems(int ownerId) {
         log.info("Запрос на просмотр всех вещей пользователя c id: " + ownerId);
-      // return repository.findByOwnerId(ownerId); (так просто весь список возвращает вещей для пользователя)
-    return bookingValidator.addLastAndNextBookingInformation(itemRepository.findByOwnerId(ownerId));
+        return bookingValidator.addLastAndNextBookingInformation(itemRepository.findByOwnerId(ownerId));
     }
 
     public Item getItemById(int requesterId, int itemId) {
         log.info("Запрос на просмотр вещи с id: " + itemId);
         itemValidator.checkItemExists(itemId);
 
-        //проверить если не собственник то просто ретурн
-        if(!itemValidator.checkOwnerOrNot(requesterId, itemId))
-        {
+        if (!itemValidator.checkOwnerOrNot(requesterId, itemId)) {
             return itemRepository.findById(itemId).get();
         }
 
-        //если собственник то вот этот ретурн остается
         return bookingValidator
                 .addLastAndNextBookingInformation(itemRepository.findById(itemId).get());
-
     }
 
     public List<Item> searchItem(String searchName, String searchDescription) {
@@ -71,14 +64,15 @@ public class ItemService {
             return Collections.emptyList();
         }
 
-        return itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(searchName, searchDescription);
+        return itemRepository
+                .findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(searchName, searchDescription);
     }
+
     @Transactional
-     public Comment addComment(int itemId, int userId, String text) {
+    public Comment addComment(int itemId, int userId, String text) {
         log.info("Запрос на добавление комментария");
         Comment comment = itemValidator.commentValidateAndCreate(itemId, userId, text);
 
         return commentRepository.save(comment);
-     }
-
+    }
 }

@@ -23,6 +23,4 @@ public class ItemMapper {
         }
         return itemsDto;
     }
-
-
 }

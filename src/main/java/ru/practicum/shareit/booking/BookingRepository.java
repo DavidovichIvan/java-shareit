@@ -22,7 +22,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(int bookerId, String status);
 
-    List<Booking> findAllByStartAfterOrderByStartDesc(LocalDateTime time); //этот метод я использовал для FUTURE
+    List<Booking> findAllByStartAfterOrderByStartDesc(LocalDateTime time);
 
     List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(int bookerId, LocalDateTime time);
 
@@ -44,7 +44,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     @Query(value = "SELECT * FROM Booking b\n" +
             "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
-            "WHERE i.OWNER_ID = ?1 AND UPPER (b.status) LIKE CONCAT(?2,'%')\n" +                               //при запросе БД чувствительна к регистру; у меня тут строка приходит в метод гарантированно в верхнем регистре; поэтому в @Query добавил UPPER для поля status чтобы его значения также делались в верхний регистр
+            "WHERE i.OWNER_ID = ?1 AND UPPER (b.status) LIKE CONCAT(?2,'%')\n" +
             "ORDER BY b.START_DATE DESC", nativeQuery = true)
     List<Booking> findAllByOwnerIdAndByStatus(int ownerId, String status);
 
@@ -61,8 +61,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "ORDER BY b.START_DATE DESC", nativeQuery = true)
     List<Booking> findBookingsInPastForItemOwner(int ownerId, LocalDateTime time);
 
-    //время начала уже наступило
-    //время завершения еще не наступило
     @Query(value = "SELECT * FROM Booking b\n" +
             "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
             "WHERE i.OWNER_ID = ?1 AND b.START_DATE < ?2 AND b.END_DATE > ?3\n" +
@@ -77,31 +75,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "FETCH NEXT 1 ROWS ONLY\n", nativeQuery = true)
     Optional<Booking> getLastBooking(int ownerId, int itemId, LocalDateTime now);
 
-
-   /*
-    @Query(value = "SELECT * FROM booking b\n" +
-            "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
-            "WHERE i.OWNER_ID = ?1 AND b.ITEM_ID = ?2 AND b.START_DATE > ?3 AND ROWNUM = 1\n" +
-            "ORDER BY b.START_DATE ASC\n", nativeQuery = true)
-    */ //мой изначальный запрос, я запрашивал первый объект у которого время старта в будущем, но у автотестов свой взгляд; они просто хотят второй объект
-    //Optional<Booking> getNextBooking(int ownerId, int itemId, LocalDateTime now);
-
-    /*
-    @Query(value = "SELECT * FROM booking b\n" +
-            "            INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
-            "          WHERE i.OWNER_ID = ?1 AND b.ITEM_ID = ?2 AND STATUS != 'rejected' \n" +
-            "           ORDER BY b.START_DATE ASC\n" +
-            "           OFFSET 1 ROWS\n" +
-            "FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
-    Optional<Booking> getNextBooking(int ownerId, int itemId);
-*/
-
     @Query(value = "SELECT * FROM booking b\n" +
             "            INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
             "          WHERE i.OWNER_ID = ?1 AND b.ITEM_ID = ?2 AND b.START_DATE > ?3 AND b.STATUS != 'REJECTED' \n" +
             "           ORDER BY b.START_DATE ASC\n" +
             "FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
     Optional<Booking> getNextBooking(int ownerId, int itemId, LocalDateTime now);
-
-
 }

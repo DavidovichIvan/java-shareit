@@ -41,7 +41,6 @@ public class BookingController {
         return bookingService.getAllBookingsForBooker(bookerId, state);
     }
 
-
     @GetMapping("/owner")
     public List<Booking> getAllBookingsForOwner(@RequestHeader("X-Sharer-User-Id") int ownerId,
                                                 @RequestParam(defaultValue = "ALL") String state) {
@@ -50,13 +49,4 @@ public class BookingController {
 
         return bookingService.getAllBookingsForOwner(ownerId, state);
     }
-
-    /*
-    тут получается нужно хз видимо таблицы объединять = к таблице букинга по id вещи цеплять все owner_id а потом из итоговой уже отбирать только те букинги где нужный owner_id
-
-    Получение списка бронирований для всех вещей текущего пользователя.
-    Эндпоинт — GET /bookings/owner?state={state}.
-    Этот запрос имеет смысл для владельца хотя бы одной вещи.
-    Работа параметра state аналогична его работе в предыдущем сценарии.
-*/
 }

@@ -7,11 +7,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Getter
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-//@ResponseBody
 public class DataBaseException extends RuntimeException {
 
     private final String message;
-    private final String error = "Some error";
 
     public DataBaseException() {
         this.message = "Ошибка работы с хранилищем данных.";
@@ -19,7 +17,5 @@ public class DataBaseException extends RuntimeException {
 
     public DataBaseException(String message) {
         this.message = message;
-
     }
 }
-

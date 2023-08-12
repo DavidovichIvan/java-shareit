@@ -39,6 +39,4 @@ public class ExceptionHandler {
                 "Ошибка данных", e.getMessage()
         );
     }
-
 }
-

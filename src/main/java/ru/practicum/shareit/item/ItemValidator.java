@@ -72,14 +72,14 @@ public class ItemValidator {
     }
 
     public Comment commentValidateAndCreate(int itemId, int authorId, String text) {
-//проверили что пользователь брал предмет раньше или сейчас
         if (text == null || text.isBlank()) {
             throw new DataBaseException("Введен пустой комментарий");
         }
         Optional<Booking> book = bookingRepository.getByIdAndBookerId(itemId, authorId);
 
-        if (book.isEmpty()) {  //опустим пока проверку если букинг есть но он в будущем только (и у пользователя одного может быть нескоглько букингов на одну вещь)
-            throw new DataBaseException("Пользователь не может оставить отзыв так как он не арендовал вещь с id: " + itemId);
+        if (book.isEmpty()) {
+            throw new DataBaseException
+                    ("Пользователь не может оставить отзыв так как он не арендовал вещь с id: " + itemId);
         }
 
         Comment comment = new Comment();
@@ -96,4 +96,3 @@ public class ItemValidator {
         return item.isPresent();
     }
 }
-

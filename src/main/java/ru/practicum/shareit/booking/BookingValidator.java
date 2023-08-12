@@ -25,7 +25,6 @@ public class BookingValidator {
     private final ItemValidator itemValidator;
     private final UserValidator userValidator;
 
-
     public static final String[] SET_VALUES = new String[]{"ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "APPROVED", "REJECTED"};
     public static final Set<String> BOOKING_REQUEST_STATUS = new HashSet<>(Arrays.asList(SET_VALUES));
 
@@ -43,7 +42,7 @@ public class BookingValidator {
             throw new DataBaseException("Введены неполные данные при бронировании вещи.");
         }
 
-        itemValidator.checkItemExists(book.getItemId()); //проверили что есть такая вещь, если буде глючить можно через item репозиторий сделать
+        itemValidator.checkItemExists(book.getItemId());
         userValidator.checkUserExists(bookerId);
         if (!itemRepository.findById(book.getItemId()).get().getAvailable()) {
             throw new DataBaseException("В настоящее время вещь недоступна для бронирования.");
@@ -71,12 +70,11 @@ public class BookingValidator {
             throw new DataBaseNotFoundException("Арендатор не может изменять статус заявки.");
         }
 
-
         if (bookingRepository.findById(bookingId).get().getStatus().equalsIgnoreCase(String.valueOf(BookingState.APPROVED))) {
             throw new DataBaseException("Заявка  на букинг уже одобрена.");
         }
         userValidator.checkUserExists(ownerId);
-        int itemId = bookingRepository.getById(bookingId).getItemId(); //получили id вещи букинг которой пытаемся подтвердить
+        int itemId = bookingRepository.getById(bookingId).getItemId();
 
         if (itemRepository.getByIdAndOwnerId(itemId, ownerId).isEmpty()) {
             throw new DataBaseException("Пользователь с id: " + ownerId + " не является владельцем вещи с id: " + itemId);
@@ -85,7 +83,6 @@ public class BookingValidator {
         if (status == null || status.isBlank() || (!status.equals("true") && !status.equals("false"))) {
             throw new DataBaseException("Статус заявки на аренду передан в неверном формате.");
         }
-
     }
 
     public String statusProcessing(String status) {
@@ -102,7 +99,6 @@ public class BookingValidator {
         if (bookingRepository.findById(bookingId).isEmpty()) {
             throw new DataBaseNotFoundException("Не найден букинг с id: " + bookingId);
         }
-
         int itemId = bookingRepository.getById(bookingId).getItemId();
         if (bookingRepository.getByIdAndBookerId(bookingId, requestorId).isEmpty()
                 && itemRepository.getByIdAndOwnerId(itemId, requestorId).isEmpty()) {
@@ -113,8 +109,6 @@ public class BookingValidator {
     public List<Booking> bookingsSearchValidate(int bookerId, String bookingsState) {
         bookingsState = bookingsState.toUpperCase();
         if (!BOOKING_REQUEST_STATUS.contains(bookingsState)) {
-
-            // throw new ServerErrorException("Unknown state: UNSUPPORTED_STATUS");
             throw new ServerErrorException(bookingsState);
         }
 
@@ -123,55 +117,43 @@ public class BookingValidator {
         }
 
         List<Booking> searchResult = new ArrayList<>();
-        //то есть нужно все букинги получить, где userId это = букер_id + сортировка
-
         switch (bookingsState) {
             case ("ALL"):
-                searchResult = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId); //это только для всех метод; для других состояний надо писать другой
+                searchResult = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
                 break;
 
             case ("WAITING"):
             case ("APPROVED"):
             case ("REJECTED"):
-                //  searchResult = bookingRepository.findAllByStatusIgnoreCaseOrderByStartDesc(bookingsState);
-                searchResult = bookingRepository.findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(bookerId, bookingsState);
+                searchResult = bookingRepository
+                        .findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(bookerId, bookingsState);
                 break;
 
             case ("CURRENT"):
-                //время начала уже наступило
-                //время завершения еще не наступило
-                //   searchResult = bookingRepository.findAllByStartBeforeAndEndAfterOrderByStartDesc(LocalDateTime.now(),LocalDateTime.now());
-                searchResult = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
+                searchResult = bookingRepository
+                        .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
 
                 break;
             case ("PAST"):
-                //время завершения уже наступило
-                // searchResult = bookingRepository.findAllByEndBeforeOrderByStartDesc(LocalDateTime.now());
-                searchResult = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
+                searchResult = bookingRepository
+                        .findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
                 break;
 
             case ("FUTURE"):
-                //время начала еще не наступило
-                //  searchResult = bookingRepository.findAllByStartAfterOrderByStartDesc(LocalDateTime.now());
-                searchResult = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
-                //переделал для тестов на время окончания не наступило
-                //searchResult = bookingRepository.findAllByEndAfterOrderByStartDesc(LocalDateTime.now());
+                searchResult = bookingRepository
+                        .findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
                 break;
 
             default:
                 log.info("Не найдены букинги по заданному параметру поиска: " + bookingsState);
-
                 break;
         }
         return searchResult;
     }
 
     public List<Booking> bookingsForOwnerValidate(int ownerId, String bookingsState) {
-        //Из ТЗ Этот запрос имеет смысл для владельца хотя бы одной вещи. = можно тут проверку воткнуть; но хз че автотестам надо они могут ждать пустой список а не ошибку
-
         bookingsState = bookingsState.toUpperCase();
         if (!BOOKING_REQUEST_STATUS.contains(bookingsState)) {
-            // throw new ServerErrorException("Unknown state: UNSUPPORTED_STATUS");
             throw new ServerErrorException(bookingsState);
         }
         if (userRepository.findById(ownerId).isEmpty()) {
@@ -179,12 +161,9 @@ public class BookingValidator {
         }
 
         List<Booking> searchResult = new ArrayList<>();
-
-
         switch (bookingsState) {
             case ("ALL"):
                 searchResult = bookingRepository.findAllBookingsForOwner(ownerId);
-                ; //это только для всех метод; для других состояний надо писать другой
                 break;
 
             case ("WAITING"):
@@ -194,24 +173,16 @@ public class BookingValidator {
                 break;
 
             case ("CURRENT"):
-
-                //время начала уже наступило
-                //время завершения еще не наступило
-
-                searchResult = bookingRepository.findCurrentBookingsForItemOwner(ownerId, LocalDateTime.now(), LocalDateTime.now());
-
+                searchResult = bookingRepository
+                        .findCurrentBookingsForItemOwner(ownerId, LocalDateTime.now(), LocalDateTime.now());
                 break;
             case ("PAST"):
-                //время завершения уже наступило
                 searchResult = bookingRepository.findBookingsInPastForItemOwner(ownerId, LocalDateTime.now());
 
                 break;
             case ("FUTURE"):
-                //время начала еще не наступило
-                //переделал для тестов на время окончания не наступило
                 searchResult = bookingRepository.findBookingsInFutureForItemOwner(ownerId, LocalDateTime.now());
                 break;
-
             default:
                 log.info("Не найдены букинги по заданному параметру поиска: " + bookingsState);
                 break;
@@ -245,31 +216,7 @@ public class BookingValidator {
     public List<Item> addLastAndNextBookingInformation(List<Item> itemlist) {
         for (Item i : itemlist) {
             addLastAndNextBookingInformation(i);
-           /*
-            Optional<Booking> booking = bookingRepository.getLastBooking(i.getOwnerId(), i.getId(), LocalDateTime.now());
-            if (booking.isPresent()) {
-                BookingDto bookingDto = new BookingDto();
-                bookingDto.setId(booking.get().getId());
-                bookingDto.setBookerId(booking.get().getBookerId());
-                bookingDto.setStart(booking.get().getStart());
-                bookingDto.setEnd(booking.get().getEnd());
-                i.setLastBooking(bookingDto);
-            }
-        }
-        for (Item i: itemlist) {
-            Optional<Booking> booking = bookingRepository.getNextBooking(i.getOwnerId(), i.getId(), LocalDateTime.now());
-            if (booking.isPresent()) {
-                BookingDto bookingDto = new BookingDto();
-                bookingDto.setId(booking.get().getId());
-                bookingDto.setBookerId(booking.get().getBookerId());
-                bookingDto.setStart(booking.get().getStart());
-                bookingDto.setEnd(booking.get().getEnd());
-                i.setNextBooking(bookingDto);
-            }
-            */
         }
         return itemlist;
     }
-
 }
-

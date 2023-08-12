@@ -8,7 +8,6 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, Integer> {
     List<Item> findByOwnerId(int ownerId);
 
-    //  List<Item> findByNameOrDescriptionContainingIgnoreCase(String searchName,String searchDescription);
     Optional<Item> getByIdAndOwnerId(int id, int ownerId);
 
     List<Item> findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(String searchName, String searchDescription); //магия JPA

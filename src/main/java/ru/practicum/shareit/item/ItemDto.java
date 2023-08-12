@@ -4,8 +4,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Data
-//@AllArgsConstructor
-//@NoArgsConstructor(force = true)
 @RequiredArgsConstructor
 public class ItemDto {
     private int id;
