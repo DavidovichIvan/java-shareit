@@ -13,9 +13,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class User {
 
-    @Getter //потом закоментить
-    @Setter
-    private static int userIdCounter = 1;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +37,5 @@ public class User {
         this.name = name;
         this.email = email;
 
-     //   this.userItemsToShare = new HashSet<>();
-       this.id = userIdCounter;
     }
 }

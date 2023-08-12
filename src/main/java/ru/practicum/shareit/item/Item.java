@@ -1,9 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import ru.practicum.shareit.booking.BookingDto;
 
 import javax.persistence.*;
@@ -15,9 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class Item {
-    @Getter     //убрать в конце
-    @Setter
-    private static int itemIdCounter = 1;
+
     @Id
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +43,5 @@ public class Item {
         this.description = description;
         this.ownerId = ownerId; //хз по идее надо, добавил
 
-        this.id = itemIdCounter;
     }
 }
