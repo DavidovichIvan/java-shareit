@@ -3,10 +3,9 @@ package ru.practicum.shareit.item;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
+//@AllArgsConstructor
+//@NoArgsConstructor(force = true)
 @RequiredArgsConstructor
 public class ItemDto {
     private int id;

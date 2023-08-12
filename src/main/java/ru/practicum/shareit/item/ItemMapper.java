@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ItemMapper {
 
-    public static ItemDto itemToDto(Item item) {             //наверное метод static по смыслу
+    public static ItemDto itemToDto(Item item) {
         ItemDto mappedItem = new ItemDto();
         mappedItem.setId(item.getId());
         mappedItem.setName(item.getName());
@@ -15,13 +15,14 @@ public class ItemMapper {
     }
 
     public static List<ItemDto> itemsListToDto(List<Item> items) {
-       List<ItemDto> itemsDto = new ArrayList<>();
+        List<ItemDto> itemsDto = new ArrayList<>();
 
-       for (Item i : items) {
-           itemsDto.add(itemToDto(i));
+        for (Item i : items) {
+            itemsDto.add(itemToDto(i));
 
-       }
+        }
         return itemsDto;
     }
+
 
 }

@@ -1,3 +1,5 @@
+//удалить в оконцове
+
 package ru.practicum.shareit.user;
 
 import lombok.Getter;
