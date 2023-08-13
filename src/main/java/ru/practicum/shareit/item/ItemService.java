@@ -26,7 +26,7 @@ public class ItemService {
 
     @Transactional
     public Item addItem(int ownerId, Item item) {
-        log.info("Запрос на добавление вещи");
+        log.info("Запрос на добавление вещи от пользователя с id: " + ownerId);
         itemValidator.itemValidate(ownerId, item);
 
         item.setOwnerId(ownerId);
@@ -59,7 +59,7 @@ public class ItemService {
     }
 
     public List<Item> searchItem(String searchName, String searchDescription) {
-        log.info("Запрос на поиск вещи");
+        log.info("Запрос на поиск вещи; параметр поиска: " + searchName);
         if (!itemValidator.validateSearchParameters(searchName)) {
             return Collections.emptyList();
         }
@@ -70,7 +70,7 @@ public class ItemService {
 
     @Transactional
     public Comment addComment(int itemId, int userId, String text) {
-        log.info("Запрос на добавление комментария");
+        log.info("Запрос на добавление комментария к вещи с id: " + itemId + " от пользователя id: " + userId);
         Comment comment = itemValidator.commentValidateAndCreate(itemId, userId, text);
 
         return commentRepository.save(comment);

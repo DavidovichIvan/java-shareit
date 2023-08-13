@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.DataBaseException;
-import ru.practicum.shareit.exceptions.DataBaseNotFoundException;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ServerErrorException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
@@ -25,13 +25,9 @@ public class BookingValidator {
     private final ItemValidator itemValidator;
     private final UserValidator userValidator;
 
-    public static final String[] SET_VALUES = new String[]{"ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "APPROVED", "REJECTED"};
-    public static final Set<String> BOOKING_REQUEST_STATUS = new HashSet<>(Arrays.asList(SET_VALUES));
-
-
     public void bookValidate(int bookerId, Booking book) {
         if (itemRepository.getByIdAndOwnerId(book.getItemId(), bookerId).isPresent()) {
-            throw new DataBaseNotFoundException("Владелец не может забронировать свою вещь.");
+            throw new NotFoundException("Владелец не может забронировать свою вещь.");
         }
 
         book.setBookerId(bookerId);
@@ -64,10 +60,9 @@ public class BookingValidator {
     }
 
     public void statusUpdateValidate(Integer bookingId, Integer ownerId, String status) {
-        //букер не может статус изменять
         int bookerId = bookingRepository.findById(bookingId).get().getBookerId();
         if (bookerId == ownerId) {
-            throw new DataBaseNotFoundException("Арендатор не может изменять статус заявки.");
+            throw new NotFoundException("Арендатор не может изменять статус заявки.");
         }
 
         if (bookingRepository.findById(bookingId).get().getStatus().equalsIgnoreCase(String.valueOf(BookingState.APPROVED))) {
@@ -76,9 +71,8 @@ public class BookingValidator {
         userValidator.checkUserExists(ownerId);
         int itemId = bookingRepository.getById(bookingId).getItemId();
 
-        if (itemRepository.getByIdAndOwnerId(itemId, ownerId).isEmpty()) {
-            throw new DataBaseException("Пользователь с id: " + ownerId + " не является владельцем вещи с id: " + itemId);
-        }
+        itemRepository.getByIdAndOwnerId(itemId, ownerId)
+                .orElseThrow(() -> new DataBaseException("Пользователь с id: " + ownerId + " не является владельцем вещи с id: " + itemId));
 
         if (status == null || status.isBlank() || (!status.equals("true") && !status.equals("false"))) {
             throw new DataBaseException("Статус заявки на аренду передан в неверном формате.");
@@ -96,25 +90,26 @@ public class BookingValidator {
     }
 
     public void bookingViewValidate(int bookingId, int requestorId) {
-        if (bookingRepository.findById(bookingId).isEmpty()) {
-            throw new DataBaseNotFoundException("Не найден букинг с id: " + bookingId);
-        }
+        bookingRepository
+                .findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Не найден букинг с id: " + bookingId));
+
         int itemId = bookingRepository.getById(bookingId).getItemId();
         if (bookingRepository.getByIdAndBookerId(bookingId, requestorId).isEmpty()
                 && itemRepository.getByIdAndOwnerId(itemId, requestorId).isEmpty()) {
-            throw new DataBaseNotFoundException("Отсутствуют права на просмотр букинга.");
+            throw new NotFoundException("Отсутствуют права на просмотр букинга.");
         }
     }
 
     public List<Booking> bookingsSearchValidate(int bookerId, String bookingsState) {
         bookingsState = bookingsState.toUpperCase();
-        if (!BOOKING_REQUEST_STATUS.contains(bookingsState)) {
+        if (!isInEnum(bookingsState)) {
             throw new ServerErrorException(bookingsState);
         }
 
-        if (userRepository.findById(bookerId).isEmpty()) {
-            throw new DataBaseNotFoundException("Пользователь не зарегистрирован, id пользователя: " + bookerId);
-        }
+        userRepository
+                .findById(bookerId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + bookerId));
 
         List<Booking> searchResult = new ArrayList<>();
         switch (bookingsState) {
@@ -153,12 +148,13 @@ public class BookingValidator {
 
     public List<Booking> bookingsForOwnerValidate(int ownerId, String bookingsState) {
         bookingsState = bookingsState.toUpperCase();
-        if (!BOOKING_REQUEST_STATUS.contains(bookingsState)) {
+        if (!isInEnum(bookingsState)) {
             throw new ServerErrorException(bookingsState);
         }
-        if (userRepository.findById(ownerId).isEmpty()) {
-            throw new DataBaseNotFoundException("Пользователь не зарегистрирован, id пользователя: " + ownerId);
-        }
+
+        userRepository
+                .findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + ownerId));
 
         List<Booking> searchResult = new ArrayList<>();
         switch (bookingsState) {
@@ -191,25 +187,26 @@ public class BookingValidator {
     }
 
     public Item addLastAndNextBookingInformation(Item i) {
-        Optional<Booking> booking = bookingRepository.getLastBooking(i.getOwnerId(), i.getId(), LocalDateTime.now());
-        if (booking.isPresent()) {
-            BookingDto bookingDto = new BookingDto();
-            bookingDto.setId(booking.get().getId());
-            bookingDto.setBookerId(booking.get().getBookerId());
-            bookingDto.setStart(booking.get().getStart());
-            bookingDto.setEnd(booking.get().getEnd());
-            i.setLastBooking(bookingDto);
-        }
+        bookingRepository.getLastBooking(i.getOwnerId(), i.getId(), LocalDateTime.now())
+                .ifPresent(foundBooking -> {
+                    BookingDto bookingDto = new BookingDto();
+                    bookingDto.setId(foundBooking.getId());
+                    bookingDto.setBookerId(foundBooking.getBookerId());
+                    bookingDto.setStart(foundBooking.getStart());
+                    bookingDto.setEnd(foundBooking.getEnd());
+                    i.setLastBooking(bookingDto);
+                });
 
-        Optional<Booking> book = bookingRepository.getNextBooking(i.getOwnerId(), i.getId(), LocalDateTime.now());
-        if (book.isPresent()) {
-            BookingDto bookingDto = new BookingDto();
-            bookingDto.setId(book.get().getId());
-            bookingDto.setBookerId(book.get().getBookerId());
-            bookingDto.setStart(book.get().getStart());
-            bookingDto.setEnd(book.get().getEnd());
-            i.setNextBooking(bookingDto);
-        }
+        bookingRepository.getNextBooking(i.getOwnerId(), i.getId(), LocalDateTime.now())
+                .ifPresent(foundBooking ->
+                {
+                    BookingDto bookingDto = new BookingDto();
+                    bookingDto.setId(foundBooking.getId());
+                    bookingDto.setBookerId(foundBooking.getBookerId());
+                    bookingDto.setStart(foundBooking.getStart());
+                    bookingDto.setEnd(foundBooking.getEnd());
+                    i.setNextBooking(bookingDto);
+                });
         return i;
     }
 
@@ -218,5 +215,9 @@ public class BookingValidator {
             addLastAndNextBookingInformation(i);
         }
         return itemlist;
+    }
+
+    public boolean isInEnum(String value) {
+        return Arrays.stream(BookingSearchParameters.values()).anyMatch(e -> e.name().equals(value));
     }
 }

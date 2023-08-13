@@ -22,13 +22,12 @@ public class ExceptionHandler {
         return response;
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(DataBaseNotFoundException.class)
+    @org.springframework.web.bind.annotation.ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    public ErrorResponse notFoundHandle(final DataBaseNotFoundException e) {
+    public ErrorResponse notFoundHandle(final NotFoundException e) {
         return new ErrorResponse(
-                "Ошибка данных", e.getMessage()
-        );
+                "Ошибка данных", e.getMessage());
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(DataBaseException.class)
@@ -36,7 +35,6 @@ public class ExceptionHandler {
     @ResponseBody
     public ErrorResponse validationHandle(final DataBaseException e) {
         return new ErrorResponse(
-                "Ошибка данных", e.getMessage()
-        );
+                "Ошибка данных", e.getMessage());
     }
 }

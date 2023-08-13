@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.NotFoundException;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class BookingService {
 
     @Transactional
     public Booking addBooking(int bookerId, Booking booking) {
-        log.info("Запрос на аренду");
+        log.info("Запрос на аренду от пользователя id: " + bookerId);
         bookingValidator.bookValidate(bookerId, booking);
 
         return bookingRepository.save(booking);
@@ -31,12 +32,13 @@ public class BookingService {
     public Booking confirmBooking(Integer bookingId, Integer ownerId, String status) {
         bookingValidator.statusUpdateValidate(bookingId, ownerId, status);
 
-        status = bookingValidator.statusProcessing(status);
+        status = bookingValidator.statusProcessing(status).toUpperCase();
 
-        bookingRepository.updateStatusById(status, bookingId);
-
-        Booking book = bookingRepository.getById(bookingId);
+        Booking book = bookingRepository
+                .findById(bookingId).orElseThrow(() -> new NotFoundException("Не найден букинг с id: " + bookingId));
         book.setStatus(status);
+        bookingRepository.save(book);
+      
         return book;
     }
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exceptions.DataBaseException;
-import ru.practicum.shareit.exceptions.DataBaseNotFoundException;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -29,28 +29,25 @@ public class ItemValidator {
                 item.getAvailable() == null) {
             throw new DataBaseException("Введены неполные данные при добавлении новой вещи.");
         }
+        User u = userRepository
+                .findById(ownerId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id: " + ownerId));
 
-        Optional<User> user = userRepository.findById(ownerId);
-        if (user.isEmpty()) {
-            throw new DataBaseNotFoundException("Не найден пользователь с id: " + ownerId);
-        }
     }
 
     public void prepareItemToUpdate(int itemId, int userId, Item updItem) {
-        Optional<Item> oldItem = itemRepository.findById(itemId);
-        if (oldItem.isEmpty()) {
-            throw new DataBaseNotFoundException("Не найдена вещь с id: " + itemId);
-        }
+        Item oldItem = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Не найдена вещь с id: " + itemId));
+
+
         if (updItem.getName() == null || updItem.getName().isBlank()) {
-            updItem.setName(oldItem.get().getName());
+            updItem.setName(oldItem.getName());
         }
 
         if (updItem.getDescription() == null || updItem.getDescription().isBlank()) {
-            updItem.setDescription(oldItem.get().getDescription());
+            updItem.setDescription(oldItem.getDescription());
         }
 
         if (updItem.getAvailable() == null) {
-            updItem.setAvailable(oldItem.get().getAvailable());
+            updItem.setAvailable(oldItem.getAvailable());
         }
 
         updItem.setId(itemId);
@@ -58,9 +55,8 @@ public class ItemValidator {
     }
 
     public void checkItemExists(int itemId) {
-        Optional<Item> item = itemRepository.findById(itemId);
-        if (item.isEmpty()) {
-            throw new DataBaseNotFoundException("Не найдена вещь с id: " + itemId);
+        if (!itemRepository.existsById(itemId)) {
+            throw new NotFoundException("Не найдена вещь с id: " + itemId);
         }
     }
 
@@ -75,12 +71,8 @@ public class ItemValidator {
         if (text == null || text.isBlank()) {
             throw new DataBaseException("Введен пустой комментарий");
         }
-        Optional<Booking> book = bookingRepository.getByIdAndBookerId(itemId, authorId);
-
-        if (book.isEmpty()) {
-            throw new DataBaseException
-                    ("Пользователь не может оставить отзыв так как он не арендовал вещь с id: " + itemId);
-        }
+        Booking book = bookingRepository.getByIdAndBookerId(itemId, authorId).orElseThrow(() -> new DataBaseException
+                ("Пользователь не может оставить отзыв так как он не арендовал вещь с id: " + itemId));
 
         Comment comment = new Comment();
         comment.setItemId(itemId);
