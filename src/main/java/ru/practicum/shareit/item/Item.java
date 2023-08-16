@@ -1,35 +1,47 @@
 package ru.practicum.shareit.item;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.BookingDto;
 
-/**
- * TODO Sprint add-controllers.
- */
-@ToString
-@EqualsAndHashCode
-@Getter
-@Setter
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "items")
+@Data
+@NoArgsConstructor
 public class Item {
-    @Getter
-    @Setter
-    private static int itemIdCounter = 1;
 
-    private int id;
+    @Id
+    @Column(name = "item_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int id;
+
+    @Column(name = "owner_id", nullable = false)
     private int ownerId;
+    @Column(name = "name", nullable = false)
     private String name;
+    @Column(name = "description", nullable = false)
     private String description;
 
+    @Column(name = "available")
     private Boolean available;
 
+    @Transient
+    BookingDto lastBooking;
+    @Transient
+    BookingDto nextBooking;
 
-    public Item() {
-        this.id = itemIdCounter;
-    }
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "item_id", insertable = false, updatable = false)
+    List<Comment> comments = new ArrayList<>();
 
-    public Item(String name, String description) {
+    public Item(String name, String description, int ownerId) {
         this.name = name;
         this.description = description;
+        this.ownerId = ownerId;
 
-        this.id = itemIdCounter;
     }
 }

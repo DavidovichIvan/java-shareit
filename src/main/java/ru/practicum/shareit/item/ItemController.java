@@ -1,54 +1,50 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
+
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
 
     private final ItemService itemService;
 
-    @Autowired
-    public ItemController(ItemService itemService) {
-        this.itemService = itemService;
-    }
-
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
-    public Item addItem(@RequestHeader("X-Sharer-User-Id") int userId, @RequestBody Item item) {
-        return itemService.addItem(userId, item);
+    public Item add(@RequestHeader("X-Sharer-User-Id") int ownerId, @RequestBody Item item) {
+        return itemService.addItem(ownerId, item);
     }
 
     @PatchMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.OK)
     public Item updItem(@PathVariable("itemId") int itemId,
-                        @RequestHeader("X-Sharer-User-Id") int userId,
+                        @RequestHeader("X-Sharer-User-Id") int ownerId,
                         @RequestBody Item item) {
-        return itemService.updItem(itemId, userId, item);
-    }
-
-    @GetMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ItemDto getItem(@PathVariable("itemId") int itemId) {
-        return itemService.getItem(itemId);
+        return itemService.updItem(itemId, ownerId, item);
     }
 
     @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
-    public List<ItemDto> getItemsOfOneUser(@RequestHeader("X-Sharer-User-Id") int userId) {
-        return itemService.getUserItems(userId);
+    public List<Item> getUserItems(@RequestHeader("X-Sharer-User-Id") int ownerId) {
+        return itemService.getUserItems(ownerId);
+    }
+
+    @GetMapping("/{itemId}")
+    public Item getItemById(@RequestHeader("X-Sharer-User-Id") int requesterId, @PathVariable("itemId") int itemId) {
+        return itemService.getItemById(requesterId, itemId);
     }
 
     @GetMapping("/search")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ItemDto> searchItem(@RequestParam(defaultValue = "") String text) {
-        return itemService.searchItem(text);
+    public List<Item> searchItem(@RequestParam(defaultValue = "") String text) {
+        return itemService.searchItem(text, text);
     }
+
+    @PostMapping("/{itemId}/comment")
+    public Comment updItem(@PathVariable("itemId") int itemId,
+                           @RequestHeader("X-Sharer-User-Id") int userId,
+                           @RequestBody Comment requestBody) {            //тут пока не понял Comment comment или строкой String comment
+        return itemService.addComment(itemId, userId, requestBody.getText());
+    }
+
 }

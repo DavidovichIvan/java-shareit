@@ -1,10 +1,11 @@
 package ru.practicum.shareit.user;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,38 +13,40 @@ import java.util.List;
 @Getter
 @Setter
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class UserService {
+    private final UserRepository repository;
+    private final UserValidator userValidator;
 
-    private final UserStorage userStorage;
-
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
+    @Transactional
     public User addUser(User user) {
         log.info("Запрос на добавление пользователя");
-        return userStorage.addUser(user);
+        userValidator.userValidate(user);
+        return repository.save(user);
     }
 
-    public User updateUser(User user) {
-        log.info("Запрос на обновление пользователя id: {} ", user.getId());
-        return userStorage.updateUser(user);
+    @Transactional
+    public User updateUser(int userId, User updUser) {
+        log.info("Запрос на обновление пользователя с id: " + userId);
+        userValidator.prepareUserToUpdate(userId, updUser);
+
+        return repository.save(updUser);
     }
 
-    public List<User> getAllUsers() {
-        log.info("Запрос списка всех пользователей");
-        return userStorage.getAllUsers();
+    public User getUserById(int userId) {
+        log.info("Запрос на просмотр пользователя с id: " + userId);
+        userValidator.checkUserExists(userId);
+
+        return repository.findById(userId).get();
     }
 
-    public User getUser(int id) {
-        log.info("Запрос на получение пользователя id: {} ", id);
-        return userStorage.getUser(id);
+    public void deleteById(Integer id) {
+        log.info("Запрос на удаление пользователя с id: " + id);
+        repository.deleteById(id);
     }
 
-    public void deleteUser(int id) {
-        log.info("Запрос на удаление пользователя id: {} ", id);
-        userStorage.deleteUser(id);
+    public List<User> getAll() {
+        return repository.findAll();
     }
-
 }

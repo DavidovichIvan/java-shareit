@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.UserService;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookingValidator;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -14,39 +16,63 @@ import java.util.List;
 @Setter
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ItemService {
 
-    private final ItemStorage itemStorage;
+    private final ItemRepository itemRepository;
+    private final CommentRepository commentRepository;
+    private final ItemValidator itemValidator;
+    private final BookingValidator bookingValidator;
 
-    private final UserService userService;
+    @Transactional
+    public Item addItem(int ownerId, Item item) {
+        log.info("Запрос на добавление вещи от пользователя с id: " + ownerId);
+        itemValidator.itemValidate(ownerId, item);
 
-    public Item addItem(int userId, Item item) {
-        log.info("Запрос на добавление вещи");
-        item.setOwnerId(userId);
-        return itemStorage.addItem(item);
+        item.setOwnerId(ownerId);
+        return itemRepository.save(item);
     }
 
-    public Item updItem(int itemId, int userId, Item item) {
+    @Transactional
+    public Item updItem(int itemId, int userId, Item updItem) {
         log.info("Запрос на обновление вещи с id: " + itemId);
-        item.setId(itemId);
-        item.setOwnerId(userId);
-        return itemStorage.updItem(item);
+        itemValidator.prepareItemToUpdate(itemId, userId, updItem);
+
+        return itemRepository.save(updItem);
     }
 
-    public ItemDto getItem(int itemId) {
+    public List<Item> getUserItems(int ownerId) {
+        log.info("Запрос на просмотр всех вещей пользователя c id: " + ownerId);
+        return bookingValidator.addLastAndNextBookingInformation(itemRepository.findByOwnerId(ownerId));
+    }
+
+    public Item getItemById(int requesterId, int itemId) {
         log.info("Запрос на просмотр вещи с id: " + itemId);
-        return ItemMapper.itemToDto(itemStorage.getItem(itemId));
+        itemValidator.checkItemExists(itemId);
+
+        if (!itemValidator.checkOwnerOrNot(requesterId, itemId)) {
+            return itemRepository.findById(itemId).get();
+        }
+
+        return bookingValidator
+                .addLastAndNextBookingInformation(itemRepository.findById(itemId).get());
     }
 
-    public List<ItemDto> getUserItems(int userId) {
-        log.info("Запрос на просмотр всех вещей пользователя c id: " + userId);
-        List<ItemDto> items = ItemMapper.itemsListToDto(itemStorage.getUserItems(userId));
-        return items;
+    public List<Item> searchItem(String searchName, String searchDescription) {
+        log.info("Запрос на поиск вещи; параметр поиска: " + searchName);
+        if (!itemValidator.validateSearchParameters(searchName)) {
+            return Collections.emptyList();
+        }
+
+        return itemRepository
+                .findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(searchName, searchDescription);
     }
 
-    public List<ItemDto> searchItem(String text) {
-        log.info("Запрос на поиск вещи. Текст для поиска: " + text);
-        List<ItemDto> items = ItemMapper.itemsListToDto(itemStorage.searchItem(text));
-        return items;
+    @Transactional
+    public Comment addComment(int itemId, int userId, String text) {
+        log.info("Запрос на добавление комментария к вещи с id: " + itemId + " от пользователя id: " + userId);
+        Comment comment = itemValidator.commentValidateAndCreate(itemId, userId, text);
+
+        return commentRepository.save(comment);
     }
 }
