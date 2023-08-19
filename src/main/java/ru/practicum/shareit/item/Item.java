@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "items")
 @Data
 @NoArgsConstructor
-@Proxy(lazy=false)
+@Proxy(lazy = false)
 public class Item {
 
     @Id
@@ -32,13 +32,12 @@ public class Item {
     @Column(name = "request_id")
     private int requestId;
 
-
     @Transient
     BookingDto lastBooking;
     @Transient
     BookingDto nextBooking;
 
-    @OneToMany(cascade = CascadeType.ALL,  fetch=FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     List<Comment> comments = new ArrayList<>();
 

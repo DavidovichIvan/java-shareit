@@ -34,5 +34,4 @@ public class ItemRequestDto {
     public ItemRequestDto(String description) {
         this.description = description;
     }
-
 }

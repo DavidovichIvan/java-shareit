@@ -19,32 +19,15 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-//@Slf4j
-//@Transactional
-//@AutoConfigureDataJdbc
-//@RequiredArgsConstructor(onConstructor_ = @Autowired)
-//@EnableJpaRepositories()
-//@SpringBootTest(
-//      properties = "db.name=test",
-//       webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
-//@AutoConfigureMockMvc
-//@ContextConfiguration(classes = {EntityManager.class,  UserService.class })
 @Slf4j
 @Transactional
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Data
-//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-
 public class UserServiceTest {
 
-    //  @Autowired
     private final UserService userService;
-
-    //   @MockBean
- //  private final EntityManager em;
 
     private List<User> testListUsers = new ArrayList<>();
 
@@ -62,11 +45,12 @@ public class UserServiceTest {
         userService.addUser(testUser4);
 
         numberOfUsersInTestDB = userService.getAll().size();
-        }
+    }
+
     @AfterEach
     public void cleanUserList() {
         testListUsers.clear();
-        }
+    }
 
     @Test
     public void addAUser() {
@@ -124,5 +108,6 @@ public class UserServiceTest {
         User updatedUser = userService.getUserById(id);
         assertThat(updatedUser.getName().equals(newName));
         assertThat(updatedUser.getEmail().equals(newEmail));
-           }
+    }
+
 }

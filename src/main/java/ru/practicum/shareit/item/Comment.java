@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @Data
 @NoArgsConstructor
-@Proxy(lazy=false)
+@Proxy(lazy = false)
 public class Comment {
 
     @Id

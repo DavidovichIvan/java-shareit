@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import ru.practicum.shareit.exceptions.DataBaseException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.UserService;
@@ -119,7 +121,6 @@ class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
-
     @Test
     void getAll() throws Exception {
         User u1 = new User();
@@ -129,5 +130,19 @@ class UserControllerTest {
         mvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void saveNewUserWithException() throws Exception {
+        when(userService.addUser(any()))
+                .thenThrow(DataBaseException.class);
+
+        mvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(user))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().is(400));
     }
 }

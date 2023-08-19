@@ -8,7 +8,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.*;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingController;
+import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.Item;
 
 import java.nio.charset.StandardCharsets;
@@ -104,5 +108,16 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].status", is("WAITING")));
     }
 
+    @Test
+    void getBookingNotFoundException() throws Exception {
+        when(bookingService.getBookingResult(anyInt(), anyInt()))
+                .thenThrow(NotFoundException.class);
+        bookMock.setBookerId(bookerId);
 
+        mvc.perform(get("/bookings/1")
+                        .header("X-Sharer-User-Id", bookMock.getBookerId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().is(404));
+    }
 }

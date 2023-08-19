@@ -10,5 +10,6 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
 
     Optional<Item> getByIdAndOwnerId(int id, int ownerId);
 
-    List<Item> findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(String searchName, String searchDescription);
+    List<Item> findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(String searchName,
+                                                                             String searchDescription);
 }

@@ -13,9 +13,8 @@ import java.util.Set;
 @Table(name = "Users")
 @Data
 @NoArgsConstructor
-@Proxy(lazy=false)
+@Proxy(lazy = false)
 public class User {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +27,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @ElementCollection(fetch=FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "Items", joinColumns = @JoinColumn(name = "owner_id"))
     @Column(name = "item_id")
     private Set<Integer> userItemsToShare = new HashSet<>();

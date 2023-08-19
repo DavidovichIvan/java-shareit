@@ -1,6 +1,5 @@
 
  --мои тестовые данные
-
 INSERT INTO users (name, email) VALUES ('Tom', 'Thomas@mail.my');
 INSERT INTO users (name, email) VALUES ('Ben', 'ben@mail.my');
 INSERT INTO users (name, email) VALUES ('Bob', 'bob@mail.my');
@@ -28,23 +27,3 @@ INSERT INTO requests(requester_id, description) VALUES (2,'Холодильни�
 INSERT INTO requests(requester_id, description) VALUES (1,'Лопата');
 INSERT INTO requests(requester_id, description) VALUES (2,'Молоток');
 INSERT INTO requests(requester_id, description) VALUES (1,'Дрель');
-
---INSERT INTO requests(requester_id, description) VALUES (3,'Чтонибудь эдакое');
---INSERT INTO requests(requester_id, description) VALUES (1,'dddd');
---INSERT INTO requests(requester_id, description) VALUES (2,'ffff');
---INSERT INTO requests(requester_id, description) VALUES (1,'ggg');
---INSERT INTO requests(requester_id, description) VALUES (2,'hhhh');
---INSERT INTO requests(requester_id, description) VALUES (1,'gggg444');
---INSERT INTO requests(requester_id, description) VALUES (3,'ffffff');
---INSERT INTO requests(requester_id, description) VALUES (1,'cc');
---INSERT INTO requests(requester_id, description) VALUES (2,'zxcz');
---INSERT INTO requests(requester_id, description) VALUES (1,'cc145');
---INSERT INTO requests(requester_id, description) VALUES (2,'qqк');
---INSERT INTO requests(requester_id, description) VALUES (1,'wwwь');
---INSERT INTO requests(requester_id, description) VALUES (3,'gdvdc');
---INSERT INTO requests(requester_id, description) VALUES (1,'wwwу');
---INSERT INTO requests(requester_id, description) VALUES (2,'ytrty4c');
---INSERT INTO requests(requester_id, description) VALUES (1,'qqq');
---INSERT INTO requests(requester_id, description) VALUES (2,'retyyrt');
---INSERT INTO requests(requester_id, description) VALUES (3,'qqqq');
-

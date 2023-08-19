@@ -10,41 +10,26 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
-    // @Modifying
-    // @Query(value = "update booking b set status = ?1 where booking_id = ?2", nativeQuery = true)
-    //void updateStatusById(String status, Integer bookingId);
-
     Optional<Booking> getByIdAndBookerId(int id, int bookerId);
-
-    List<Booking> findAllByBookerIdOrderByStartDesc(int bookerId);
-
-    List<Booking> findAllByStatusIgnoreCaseOrderByStartDesc(String status);
 
     List<Booking> findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(int bookerId,
                                                                        String status,
                                                                        PageRequest pageRequest);
 
-    List<Booking> findAllByStartAfterOrderByStartDesc(LocalDateTime time);
-
     List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(int bookerId,
                                                                  LocalDateTime time,
                                                                  PageRequest pageRequest);
-
-    List<Booking> findAllByEndAfterOrderByStartDesc(LocalDateTime time);
-
-    List<Booking> findAllByEndBeforeOrderByStartDesc(LocalDateTime time);
 
     List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(int bookerId,
                                                                 LocalDateTime time,
                                                                 PageRequest pageRequest);
 
-    List<Booking> findAllByStartBeforeAndEndAfterOrderByStartDesc(LocalDateTime start, LocalDateTime end);
-
     List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(int bookerId,
                                                                              LocalDateTime start,
                                                                              LocalDateTime end,
                                                                              PageRequest pageRequest);
-       @Query(value = "select b, i from Booking b, Item i\n" +
+
+    @Query(value = "select b, i from Booking b, Item i\n" +
             "where b.itemId = i.id and i.ownerId = :ownerId order by b.start desc")
     List<Booking> findAllBookingsForOwner(int ownerId);
 
@@ -54,8 +39,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "ORDER BY b.START_DATE DESC", nativeQuery = true)
     List<Booking> findAllByOwnerIdAndByStatus(int ownerId, String status, PageRequest pageRequest);
 
-
-    //сущности
     @Query(value = "select b, i from Booking b, Item i\n" +
             "where b.itemId = i.id and i.ownerId = :ownerId and b.start > :time\n" +
             "order by b.start desc")
@@ -70,7 +53,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
                                                  LocalDateTime time,
                                                  PageRequest pageRequest);
 
-    //сущности
     @Query(value = "select b, i from Booking b, Item i\n" +
             "where b.itemId = i.id and i.ownerId = ?1 and b.start < ?2 and b.end > ?3\n" +
             "order by b.start desc")
@@ -99,15 +81,15 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "order by start_date desc \n" +
             "offset :startElement fetch next :elementsPerPage rows only", nativeQuery = true)
     List<Booking> findAllByBookerIdFromStartElement(int bookerId,
-                                                        int startElement,
-                                                        int elementsPerPage);
+                                                    int startElement,
+                                                    int elementsPerPage);
+
     @Query(value = "select * from Booking b\n" +
             "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
             "where i.owner_id = :ownerId\n" +
             "order by start_date desc \n" +
             "offset :startElement fetch next :elementsPerPage rows only", nativeQuery = true)
     List<Booking> findAllByOwnerIdFromStartElement(int ownerId,
-                                                    int startElement,
-                                                    int elementsPerPage);
-
+                                                   int startElement,
+                                                   int elementsPerPage);
 }

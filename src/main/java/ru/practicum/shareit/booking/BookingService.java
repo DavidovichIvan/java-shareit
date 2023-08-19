@@ -38,7 +38,7 @@ public class BookingService {
                 .findById(bookingId).orElseThrow(() -> new NotFoundException("Не найден букинг с id: " + bookingId));
         book.setStatus(status);
         bookingRepository.save(book);
-      
+
         return book;
     }
 
@@ -52,6 +52,6 @@ public class BookingService {
     }
 
     public List<Booking> getAllBookingsForOwner(int ownerId, String bookingsState, Integer startPage, Integer outputSize) {
-        return bookingValidator.bookingsForOwnerValidate(ownerId, bookingsState, startPage, outputSize );
+        return bookingValidator.bookingsForOwnerValidate(ownerId, bookingsState, startPage, outputSize);
     }
 }

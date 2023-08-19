@@ -29,29 +29,26 @@ public class RequestService {
         request.setRequesterId(requesterId);
         requestValidator.requestValidateAndSetCreationTime(request);
 
-            return requestRepository.save(request);
+        return requestRepository.save(request);
+    }
 
-          }
-public List<ItemRequestDto> getRequestsForUser(int requesterId) {
-    log.info("Просмотр заявок на вещи от пользователя с id: " + requesterId);
-    userValidator.checkUserExists(requesterId);
+    public List<ItemRequestDto> getRequestsForUser(int requesterId) {
+        log.info("Просмотр заявок на вещи от пользователя с id: " + requesterId);
+        userValidator.checkUserExists(requesterId);
 
-     return requestValidator.formAnswersListForUser(requesterId);
-}
-    public List<ItemRequest>  getOtherUsersRequests(Integer requesterId, Integer startPage, Integer outputSize) {
+        return requestValidator.formAnswersListForUser(requesterId);
+    }
+
+    public List<ItemRequest> getOtherUsersRequests(Integer requesterId, Integer startPage, Integer outputSize) {
         userValidator.checkUserExists(requesterId);
         log.info("Просмотр заявок всех кроме пользователя с id: " + requesterId);
 
-  //      return requestRepository.findAllByRequesterIdIsNotOrderByCreatedDesc(requesterId) //это без пагинации
         return requestValidator.getOtherUsersRequestsPaginated(requesterId, startPage, outputSize);
     }
-
 
     public ItemRequestDto getInformationAboutSingleRequests(int requesterId, int requestId) {
         log.info("Просмотр заявки с id: " + requestId);
         userValidator.checkUserExists(requesterId);
         return requestValidator.getInformationAboutSingleRequests(requestId);
     }
-
-
 }

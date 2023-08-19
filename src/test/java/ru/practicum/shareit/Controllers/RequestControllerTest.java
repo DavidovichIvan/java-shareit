@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import ru.practicum.shareit.exceptions.DataBaseException;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.request.ItemRequestDto;
@@ -90,5 +92,20 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].description", is("test get dto")))
                 .andExpect(jsonPath("$[1].description", is("Second object")));
+    }
+
+    @Test
+    void saveNewUserWithException() throws Exception {
+        when(requestService.addRequest(anyInt(), any()))
+                .thenThrow(DataBaseException.class);
+
+        mvc.perform(post("/requests")
+                        .content(mapper.writeValueAsString(request))
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().is(400));
     }
 }

@@ -33,7 +33,6 @@ public class BookingServiceTest {
     private final int ownerId = 1;
     Booking book = new Booking();
 
-
     @BeforeEach
     public void beforeEach() {
     }
@@ -61,8 +60,8 @@ public class BookingServiceTest {
         assertThat(book.getStatus().equalsIgnoreCase("WAITING"));
 
         bookService.confirmBooking(book.getId(), ownerId, "true");
-        assertThat(bookService.getBookingResult(book.getId(), bookerId).getStatus().equalsIgnoreCase("APPROVED"));
-
+        assertThat(bookService.getBookingResult(book.getId(), bookerId)
+                .getStatus().equalsIgnoreCase("APPROVED"));
     }
 
     @Test
@@ -70,17 +69,14 @@ public class BookingServiceTest {
         String status = "ALL";
         int from = 0;
         int size = 20;
-    List<Booking> bookingList =  bookService.getAllBookingsForBooker(bookerId, status, from, size);
+        List<Booking> bookingList = bookService.getAllBookingsForBooker(bookerId, status, from, size);
 
-    assertThat(!bookingList.isEmpty());
+        assertThat(!bookingList.isEmpty());
 
-    for (Booking b: bookingList) {
-        assertThat(b.getItemId() > 0);
-        assertThat(b.getBookerId() > 0);
-        assertThat(b.getItem() != null);
+        for (Booking b : bookingList) {
+            assertThat(b.getItemId() > 0);
+            assertThat(b.getBookerId() > 0);
+            assertThat(b.getItem() != null);
+        }
     }
-
-}
-
-
 }

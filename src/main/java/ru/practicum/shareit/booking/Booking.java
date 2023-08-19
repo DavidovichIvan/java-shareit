@@ -9,14 +9,11 @@ import ru.practicum.shareit.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Entity
 @Table(name = "booking")
 @Data
 @NoArgsConstructor
-@Proxy(lazy=false)
+@Proxy(lazy = false)
 public class Booking {
 
     @Id
@@ -39,11 +36,11 @@ public class Booking {
     @Column(name = "status")
     private String status = "WAITING";
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     private Item item;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "booker_id", insertable = false, updatable = false)
     private User booker;
 }

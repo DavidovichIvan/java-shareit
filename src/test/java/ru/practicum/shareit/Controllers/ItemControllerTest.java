@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import ru.practicum.shareit.exceptions.DataBaseException;
 import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemController;
@@ -82,7 +84,6 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(itemMock.getName())))
                 .andExpect(jsonPath("$.description", is(itemMock.getDescription())));
-
     }
 
     @Test
@@ -100,7 +101,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.description", is(itemMock.getDescription())));
     }
 
-
     @Test
     void searchItem() throws Exception {
         when(itemService.searchItem(anyString(), anyString()))
@@ -117,7 +117,7 @@ class ItemControllerTest {
     @Test
     void addComment() throws Exception {
         Comment testComment = new Comment();
-    //    testComment.setItemId(1);
+        //    testComment.setItemId(1);
         testComment.setText("Тестовый комментарий");
 
         when(itemService.addComment(anyInt(), anyInt(), anyString()))
@@ -133,4 +133,15 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.text", is("Тестовый комментарий")));
     }
 
+    @Test
+    void getItemByIdWithException() throws Exception {
+        when(itemService.getItemById(-1, -1))
+                .thenThrow(DataBaseException.class);
+
+        mvc.perform(get("/items/-1")
+                        .header("X-Sharer-User-Id", -1)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().is(400));
+    }
 }

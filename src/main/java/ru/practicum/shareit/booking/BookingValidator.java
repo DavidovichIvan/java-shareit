@@ -68,14 +68,18 @@ public class BookingValidator {
             throw new NotFoundException("Арендатор не может изменять статус заявки.");
         }
 
-        if (bookingRepository.findById(bookingId).get().getStatus().equalsIgnoreCase(String.valueOf(BookingState.APPROVED))) {
+        if (bookingRepository.findById(bookingId)
+                .get()
+                .getStatus()
+                .equalsIgnoreCase(String.valueOf(BookingState.APPROVED))) {
             throw new DataBaseException("Заявка  на букинг уже одобрена.");
         }
         userValidator.checkUserExists(ownerId);
         int itemId = bookingRepository.getById(bookingId).getItemId();
 
         itemRepository.getByIdAndOwnerId(itemId, ownerId)
-                .orElseThrow(() -> new DataBaseException("Пользователь с id: " + ownerId + " не является владельцем вещи с id: " + itemId));
+                .orElseThrow(() -> new DataBaseException(
+                        "Пользователь с id: " + ownerId + " не является владельцем вещи с id: " + itemId));
 
         if (status == null || status.isBlank() || (!status.equals("true") && !status.equals("false"))) {
             throw new DataBaseException("Статус заявки на аренду передан в неверном формате.");
@@ -121,10 +125,9 @@ public class BookingValidator {
         switch (bookingsState) {
             case ("ALL"):
 
-                //searchResult = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId); ////предыд вариант без пагинации
-                  searchResult = bookingRepository
-                       .findAllByBookerIdFromStartElement(bookerId, from, size);
-            break;
+                searchResult = bookingRepository
+                        .findAllByBookerIdFromStartElement(bookerId, from, size);
+                break;
 
             case ("WAITING"):
             case ("APPROVED"):
@@ -176,17 +179,15 @@ public class BookingValidator {
                 .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + ownerId));
 
         checkPagingParametersAreCorrect(from, size);
-                PageRequest pageRequest = PageRequest.of(from, size);
+        PageRequest pageRequest = PageRequest.of(from, size);
 
         List<Booking> searchResult = new ArrayList<>();
         switch (bookingsState) {
             case ("ALL"):
 
-                //searchResult = bookingRepository.findAllBookingsForOwner(ownerId); //предыд вариант без пагинации
-
                 searchResult = bookingRepository
                         .findAllByOwnerIdFromStartElement(ownerId, from, size);
-            break;
+                break;
 
             case ("WAITING"):
             case ("APPROVED"):
@@ -196,14 +197,21 @@ public class BookingValidator {
 
             case ("CURRENT"):
                 searchResult = bookingRepository
-                        .findCurrentBookingsForItemOwner(ownerId, LocalDateTime.now(), LocalDateTime.now(), pageRequest);
+                        .findCurrentBookingsForItemOwner(ownerId,
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                pageRequest);
                 break;
             case ("PAST"):
-                searchResult = bookingRepository.findBookingsInPastForItemOwner(ownerId, LocalDateTime.now(), pageRequest);
+                searchResult = bookingRepository.findBookingsInPastForItemOwner(ownerId,
+                        LocalDateTime.now(),
+                        pageRequest);
 
                 break;
             case ("FUTURE"):
-                searchResult = bookingRepository.findBookingsInFutureForItemOwner(ownerId, LocalDateTime.now(), pageRequest);
+                searchResult = bookingRepository.findBookingsInFutureForItemOwner(ownerId,
+                        LocalDateTime.now(),
+                        pageRequest);
                 break;
             default:
                 log.info("Не найдены букинги по заданному параметру поиска: " + bookingsState);
