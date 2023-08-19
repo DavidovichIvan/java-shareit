@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -8,9 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "Users")
 @Data
 @NoArgsConstructor
+@Proxy(lazy=false)
 public class User {
 
 
@@ -25,7 +28,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @ElementCollection
+    @ElementCollection(fetch=FetchType.EAGER)
     @CollectionTable(name = "Items", joinColumns = @JoinColumn(name = "owner_id"))
     @Column(name = "item_id")
     private Set<Integer> userItemsToShare = new HashSet<>();
@@ -33,6 +36,5 @@ public class User {
     public User(String name, String email) {
         this.name = name;
         this.email = email;
-
     }
 }

@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @Data
 @NoArgsConstructor
+@Proxy(lazy=false)
 public class Comment {
 
     @Id

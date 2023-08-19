@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,82 +20,64 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findAllByStatusIgnoreCaseOrderByStartDesc(String status);
 
-    List<Booking> findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(int bookerId, String status);
+    List<Booking> findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(int bookerId,
+                                                                       String status,
+                                                                       PageRequest pageRequest);
 
     List<Booking> findAllByStartAfterOrderByStartDesc(LocalDateTime time);
 
-    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(int bookerId, LocalDateTime time);
+    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(int bookerId,
+                                                                 LocalDateTime time,
+                                                                 PageRequest pageRequest);
 
     List<Booking> findAllByEndAfterOrderByStartDesc(LocalDateTime time);
 
     List<Booking> findAllByEndBeforeOrderByStartDesc(LocalDateTime time);
 
-    List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(int bookerId, LocalDateTime time);
+    List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(int bookerId,
+                                                                LocalDateTime time,
+                                                                PageRequest pageRequest);
 
     List<Booking> findAllByStartBeforeAndEndAfterOrderByStartDesc(LocalDateTime start, LocalDateTime end);
 
-    List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(int bookerId, LocalDateTime start, LocalDateTime end);
-
-/* //нативный
-    @Query(value = "SELECT * FROM booking b\n" +
-            "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
-            "WHERE i.OWNER_ID = :ownerId ORDER BY b.START_DATE DESC", nativeQuery = true)
-    List<Booking> findAllBookingsForOwner(int ownerId);
-*/
-
-    //тот же запрос только через сущности (JPQL)
-    @Query(value = "select b, i from Booking b, Item i\n" +
+    List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(int bookerId,
+                                                                             LocalDateTime start,
+                                                                             LocalDateTime end,
+                                                                             PageRequest pageRequest);
+       @Query(value = "select b, i from Booking b, Item i\n" +
             "where b.itemId = i.id and i.ownerId = :ownerId order by b.start desc")
     List<Booking> findAllBookingsForOwner(int ownerId);
-
 
     @Query(value = "SELECT * FROM Booking b\n" +
             "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
             "WHERE i.OWNER_ID = :ownerId AND UPPER (b.status) LIKE CONCAT(:status,'%')\n" +
             "ORDER BY b.START_DATE DESC", nativeQuery = true)
-    List<Booking> findAllByOwnerIdAndByStatus(int ownerId, String status);
+    List<Booking> findAllByOwnerIdAndByStatus(int ownerId, String status, PageRequest pageRequest);
 
-    /* //нативный
-    @Query(value = "SELECT * FROM Booking b\n" +
-            "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
-            "WHERE i.OWNER_ID = :ownerId AND b.START_DATE > :time\n" +
-            "ORDER BY b.START_DATE DESC", nativeQuery = true)
-    List<Booking> findBookingsInFutureForItemOwner(int ownerId, LocalDateTime time);
-*/
 
     //сущности
     @Query(value = "select b, i from Booking b, Item i\n" +
             "where b.itemId = i.id and i.ownerId = :ownerId and b.start > :time\n" +
             "order by b.start desc")
-    List<Booking> findBookingsInFutureForItemOwner(int ownerId, LocalDateTime time);
+    List<Booking> findBookingsInFutureForItemOwner(int ownerId,
+                                                   LocalDateTime time,
+                                                   PageRequest pageRequest);
 
-    /* //нативный
-    @Query(value = "SELECT * FROM Booking b\n" +
-            "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
-            "WHERE i.OWNER_ID = ?1 AND b.END_DATE < ?2\n" +
-            "ORDER BY b.START_DATE DESC", nativeQuery = true)
-    List<Booking> findBookingsInPastForItemOwner(int ownerId, LocalDateTime time);
-     */
-
-    //сущности
     @Query(value = "select b, i from Booking b, Item i\n" +
             "where b.itemId = i.id and i.ownerId = :ownerId and b.end < :time\n" +
             "order by b.start desc")
-    List<Booking> findBookingsInPastForItemOwner(int ownerId, LocalDateTime time);
-
-    /* //нативный
-        @Query(value = "SELECT * FROM Booking b\n" +
-                "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
-                "WHERE i.OWNER_ID = ?1 AND b.START_DATE < ?2 AND b.END_DATE > ?3\n" +
-                "ORDER BY b.START_DATE DESC", nativeQuery = true)
-        */
+    List<Booking> findBookingsInPastForItemOwner(int ownerId,
+                                                 LocalDateTime time,
+                                                 PageRequest pageRequest);
 
     //сущности
     @Query(value = "select b, i from Booking b, Item i\n" +
             "where b.itemId = i.id and i.ownerId = ?1 and b.start < ?2 and b.end > ?3\n" +
             "order by b.start desc")
-    List<Booking> findCurrentBookingsForItemOwner(int ownerId, LocalDateTime start, LocalDateTime end);
-
+    List<Booking> findCurrentBookingsForItemOwner(int ownerId,
+                                                  LocalDateTime start,
+                                                  LocalDateTime end,
+                                                  PageRequest pageRequest);
 
     @Query(value = "SELECT * FROM booking b\n" +
             "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
@@ -109,4 +92,22 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "ORDER BY b.START_DATE ASC\n" +
             "FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
     Optional<Booking> getNextBooking(int ownerId, int itemId, LocalDateTime now);
+
+    //альтернатива явной пагинации, как пример в одном методе использовал
+    @Query(value = "select * from Booking\n" +
+            "where booker_id = :bookerId\n" +
+            "order by start_date desc \n" +
+            "offset :startElement fetch next :elementsPerPage rows only", nativeQuery = true)
+    List<Booking> findAllByBookerIdFromStartElement(int bookerId,
+                                                        int startElement,
+                                                        int elementsPerPage);
+    @Query(value = "select * from Booking b\n" +
+            "INNER JOIN ITEMS i ON b.ITEM_ID = i.ITEM_ID\n" +
+            "where i.owner_id = :ownerId\n" +
+            "order by start_date desc \n" +
+            "offset :startElement fetch next :elementsPerPage rows only", nativeQuery = true)
+    List<Booking> findAllByOwnerIdFromStartElement(int ownerId,
+                                                    int startElement,
+                                                    int elementsPerPage);
+
 }

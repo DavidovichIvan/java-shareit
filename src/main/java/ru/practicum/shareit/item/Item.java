@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Proxy;
 import ru.practicum.shareit.booking.BookingDto;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @Table(name = "items")
 @Data
 @NoArgsConstructor
+@Proxy(lazy=false)
 public class Item {
 
     @Id
@@ -25,16 +27,18 @@ public class Item {
     private String name;
     @Column(name = "description", nullable = false)
     private String description;
-
     @Column(name = "available")
     private Boolean available;
+    @Column(name = "request_id")
+    private int requestId;
+
 
     @Transient
     BookingDto lastBooking;
     @Transient
     BookingDto nextBooking;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL,  fetch=FetchType.EAGER)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     List<Comment> comments = new ArrayList<>();
 

@@ -47,11 +47,11 @@ public class BookingService {
         return bookingRepository.getById(bookingId);
     }
 
-    public List<Booking> getAllBookingsForBooker(int bookerId, String bookingsState) {
-        return bookingValidator.bookingsSearchValidate(bookerId, bookingsState);
+    public List<Booking> getAllBookingsForBooker(int bookerId, String bookingsState, Integer startPage, Integer outputSize) {
+        return bookingValidator.bookingsSearchValidate(bookerId, bookingsState, startPage, outputSize);
     }
 
-    public List<Booking> getAllBookingsForOwner(int ownerId, String bookingsState) {
-        return bookingValidator.bookingsForOwnerValidate(ownerId, bookingsState);
+    public List<Booking> getAllBookingsForOwner(int ownerId, String bookingsState, Integer startPage, Integer outputSize) {
+        return bookingValidator.bookingsForOwnerValidate(ownerId, bookingsState, startPage, outputSize );
     }
 }

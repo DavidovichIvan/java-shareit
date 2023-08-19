@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.DataBaseException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -13,7 +14,9 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserValidator;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -101,7 +104,7 @@ public class BookingValidator {
         }
     }
 
-    public List<Booking> bookingsSearchValidate(int bookerId, String bookingsState) {
+    public List<Booking> bookingsSearchValidate(int bookerId, String bookingsState, Integer from, Integer size) {
         bookingsState = bookingsState.toUpperCase();
         if (!isInEnum(bookingsState)) {
             throw new ServerErrorException(bookingsState);
@@ -111,32 +114,45 @@ public class BookingValidator {
                 .findById(bookerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + bookerId));
 
+        checkPagingParametersAreCorrect(from, size);
+        PageRequest pageRequest = PageRequest.of(from, size);
+
         List<Booking> searchResult = new ArrayList<>();
         switch (bookingsState) {
             case ("ALL"):
-                searchResult = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
-                break;
+
+                //searchResult = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId); ////предыд вариант без пагинации
+                  searchResult = bookingRepository
+                       .findAllByBookerIdFromStartElement(bookerId, from, size);
+            break;
 
             case ("WAITING"):
             case ("APPROVED"):
             case ("REJECTED"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(bookerId, bookingsState);
+                        .findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(bookerId, bookingsState, pageRequest);
                 break;
 
             case ("CURRENT"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
+                        .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                pageRequest);
 
                 break;
             case ("PAST"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
+                        .findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId,
+                                LocalDateTime.now(),
+                                pageRequest);
                 break;
 
             case ("FUTURE"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+                        .findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId,
+                                LocalDateTime.now(),
+                                pageRequest);
                 break;
 
             default:
@@ -146,7 +162,10 @@ public class BookingValidator {
         return searchResult;
     }
 
-    public List<Booking> bookingsForOwnerValidate(int ownerId, String bookingsState) {
+    public List<Booking> bookingsForOwnerValidate(int ownerId,
+                                                  String bookingsState,
+                                                  Integer from,
+                                                  Integer size) {
         bookingsState = bookingsState.toUpperCase();
         if (!isInEnum(bookingsState)) {
             throw new ServerErrorException(bookingsState);
@@ -156,33 +175,41 @@ public class BookingValidator {
                 .findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + ownerId));
 
+        checkPagingParametersAreCorrect(from, size);
+                PageRequest pageRequest = PageRequest.of(from, size);
+
         List<Booking> searchResult = new ArrayList<>();
         switch (bookingsState) {
             case ("ALL"):
-                searchResult = bookingRepository.findAllBookingsForOwner(ownerId);
-                break;
+
+                //searchResult = bookingRepository.findAllBookingsForOwner(ownerId); //предыд вариант без пагинации
+
+                searchResult = bookingRepository
+                        .findAllByOwnerIdFromStartElement(ownerId, from, size);
+            break;
 
             case ("WAITING"):
             case ("APPROVED"):
             case ("REJECTED"):
-                searchResult = bookingRepository.findAllByOwnerIdAndByStatus(ownerId, bookingsState);
+                searchResult = bookingRepository.findAllByOwnerIdAndByStatus(ownerId, bookingsState, pageRequest);
                 break;
 
             case ("CURRENT"):
                 searchResult = bookingRepository
-                        .findCurrentBookingsForItemOwner(ownerId, LocalDateTime.now(), LocalDateTime.now());
+                        .findCurrentBookingsForItemOwner(ownerId, LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                 break;
             case ("PAST"):
-                searchResult = bookingRepository.findBookingsInPastForItemOwner(ownerId, LocalDateTime.now());
+                searchResult = bookingRepository.findBookingsInPastForItemOwner(ownerId, LocalDateTime.now(), pageRequest);
 
                 break;
             case ("FUTURE"):
-                searchResult = bookingRepository.findBookingsInFutureForItemOwner(ownerId, LocalDateTime.now());
+                searchResult = bookingRepository.findBookingsInFutureForItemOwner(ownerId, LocalDateTime.now(), pageRequest);
                 break;
             default:
                 log.info("Не найдены букинги по заданному параметру поиска: " + bookingsState);
                 break;
         }
+
         return searchResult;
     }
 
@@ -219,5 +246,14 @@ public class BookingValidator {
 
     public boolean isInEnum(String value) {
         return Arrays.stream(BookingSearchParameters.values()).anyMatch(e -> e.name().equals(value));
+    }
+
+    private void checkPagingParametersAreCorrect(Integer from, Integer size) {
+        if (size == null || size <= 0) {
+            throw new DataBaseException("Количество объектов, подлежащих выводу на одной странице, должно быть положительным.");
+        }
+        if (from < 0) {
+            throw new DataBaseException("Номер начальной страницы не может быть отрицательным.");
+        }
     }
 }
