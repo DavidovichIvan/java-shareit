@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class RequestService {
 
     private final UserValidator userValidator;
@@ -32,7 +31,7 @@ public class RequestService {
         return requestRepository.save(request);
     }
 
-    public List<ItemRequestDto> getRequestsForUser(int requesterId) {
+    public List<ItemRequest> getRequestsForUser(int requesterId) {
         log.info("Просмотр заявок на вещи от пользователя с id: " + requesterId);
         userValidator.checkUserExists(requesterId);
 
@@ -46,7 +45,7 @@ public class RequestService {
         return requestValidator.getOtherUsersRequestsPaginated(requesterId, startPage, outputSize);
     }
 
-    public ItemRequestDto getInformationAboutSingleRequests(int requesterId, int requestId) {
+    public ItemRequest getInformationAboutSingleRequests(int requesterId, int requestId) {
         log.info("Просмотр заявки с id: " + requestId);
         userValidator.checkUserExists(requesterId);
         return requestValidator.getInformationAboutSingleRequests(requestId);

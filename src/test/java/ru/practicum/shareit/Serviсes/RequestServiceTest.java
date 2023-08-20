@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.request.ItemRequestDto;
 import ru.practicum.shareit.request.RequestService;
 
 import java.util.ArrayList;
@@ -69,9 +68,9 @@ public class RequestServiceTest {
 
     @Test
     public void getRequestsForUser() {
-        List<ItemRequestDto> requestList = requestService.getRequestsForUser(requesterId);
+        List<ItemRequest> requestList = requestService.getRequestsForUser(requesterId);
         assertThat(!requestList.isEmpty());
-        for (ItemRequestDto i : requestList) {
+        for (ItemRequest i : requestList) {
             assertThat(i.getRequesterId() == requesterId);
         }
     }
@@ -82,7 +81,7 @@ public class RequestServiceTest {
         ItemRequest item = requestService.addRequest(requesterId, testRequest);
         int requestId = item.getId();
 
-        ItemRequestDto itemDto = requestService.getInformationAboutSingleRequests(requesterId, requestId);
+        ItemRequest itemDto = requestService.getInformationAboutSingleRequests(requesterId, requestId);
 
         assertThat(itemDto.getRequesterId() == requesterId);
         assertThat(itemDto.getDescription().equalsIgnoreCase("Морской бинокль"));

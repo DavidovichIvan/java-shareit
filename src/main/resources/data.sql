@@ -1,4 +1,4 @@
-
+/*
  --мои тестовые данные
 INSERT INTO users (name, email) VALUES ('Tom', 'Thomas@mail.my');
 INSERT INTO users (name, email) VALUES ('Ben', 'ben@mail.my');
@@ -27,3 +27,4 @@ INSERT INTO requests(requester_id, description) VALUES (2,'Холодильни�
 INSERT INTO requests(requester_id, description) VALUES (1,'Лопата');
 INSERT INTO requests(requester_id, description) VALUES (2,'Молоток');
 INSERT INTO requests(requester_id, description) VALUES (1,'Дрель');
+*/

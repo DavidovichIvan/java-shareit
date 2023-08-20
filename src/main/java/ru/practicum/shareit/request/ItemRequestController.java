@@ -19,7 +19,7 @@ public class ItemRequestController {
     }
 
     @GetMapping()
-    public List<ItemRequestDto> getRequestsForUser(@RequestHeader("X-Sharer-User-Id") int requesterId) {
+    public List<ItemRequest> getRequestsForUser(@RequestHeader("X-Sharer-User-Id") int requesterId) {
         return requestService.getRequestsForUser(requesterId);
     }
 
@@ -32,8 +32,8 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto getInformationAboutSingleRequests(@RequestHeader("X-Sharer-User-Id") int requesterId,
-                                                            @PathVariable("requestId") int requestId) {
+    public ItemRequest getInformationAboutSingleRequests(@RequestHeader("X-Sharer-User-Id") int requesterId,
+                                                         @PathVariable("requestId") int requestId) {
         return requestService.getInformationAboutSingleRequests(requesterId, requestId);
     }
 }

@@ -1,19 +1,20 @@
 package ru.practicum.shareit.booking;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Proxy;
+import lombok.Setter;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "booking")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@Proxy(lazy = false)
 public class Booking {
 
     @Id
@@ -36,11 +37,24 @@ public class Booking {
     @Column(name = "status")
     private String status = "WAITING";
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     private Item item;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "booker_id", insertable = false, updatable = false)
     private User booker;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Booking)) return false;
+        Booking booking = (Booking) o;
+        return id == booking.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

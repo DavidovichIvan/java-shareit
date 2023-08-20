@@ -1,7 +1,9 @@
 package ru.practicum.shareit.request;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -9,12 +11,15 @@ import java.util.List;
 
 @Entity
 @Table(name = "requests")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "request_id")
+    @EqualsAndHashCode.Include
     private int id;
 
     @Column(name = "requester_id", nullable = false)
@@ -27,7 +32,7 @@ public class ItemRequest {
     private LocalDateTime created;
 
     @Transient
-    List<RequestAnswer> items;
+    private List<RequestAnswer> items;
 
     public ItemRequest(String description) {
         this.description = description;

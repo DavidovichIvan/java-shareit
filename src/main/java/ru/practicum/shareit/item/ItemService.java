@@ -16,7 +16,6 @@ import java.util.List;
 @Setter
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ItemService {
 
     private final ItemRepository itemRepository;

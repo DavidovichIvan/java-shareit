@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.practicum.shareit.exceptions.DataBaseException;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestController;
-import ru.practicum.shareit.request.ItemRequestDto;
 import ru.practicum.shareit.request.RequestService;
 
 import java.nio.charset.StandardCharsets;
@@ -63,7 +62,7 @@ public class RequestControllerTest {
     @Test
     void getRequestsForUser() throws Exception {
                 when(requestService.getRequestsForUser(anyInt()))
-                .thenReturn(List.of(new ItemRequestDto(testDescription)));
+                .thenReturn(List.of(new ItemRequest(testDescription)));
 
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 1)

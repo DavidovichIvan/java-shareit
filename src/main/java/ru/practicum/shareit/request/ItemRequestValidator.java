@@ -15,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemRequestValidator {
 
-    private final ItemRequestDtoRepository itemRequestDtoRepository;
     private final ItemRequestRepository itemRequestRepository;
     private final RequestAnswerRepository requestAnswerRepository;
 
@@ -27,11 +26,11 @@ public class ItemRequestValidator {
         request.setCreated(LocalDateTime.now());
     }
 
-    public List<ItemRequestDto> formAnswersListForUser(int requesterId) {
-        List<ItemRequestDto> userRequests = itemRequestDtoRepository
+    public List<ItemRequest> formAnswersListForUser(int requesterId) {
+        List<ItemRequest> userRequests = itemRequestRepository
                 .findAllByRequesterIdOrderByCreatedDesc(requesterId);
 
-        for (ItemRequestDto i : userRequests) {
+        for (ItemRequest i : userRequests) {
             int requestId = i.getId();
             List<RequestAnswer> answersForRequest = requestAnswerRepository
                     .findAllByRequestId(requestId);
@@ -40,8 +39,8 @@ public class ItemRequestValidator {
         return userRequests;
     }
 
-    public ItemRequestDto getInformationAboutSingleRequests(int requestId) {
-        ItemRequestDto request = itemRequestDtoRepository
+    public ItemRequest getInformationAboutSingleRequests(int requestId) {
+        ItemRequest request = itemRequestRepository
                 .findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Не найдена заявка с id: " + requestId));
         List<RequestAnswer> answersForRequest = requestAnswerRepository

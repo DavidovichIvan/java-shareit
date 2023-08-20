@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BookingService {
 
     private final BookingRepository bookingRepository;
@@ -29,6 +28,7 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
+    @Transactional
     public Booking confirmBooking(Integer bookingId, Integer ownerId, String status) {
         bookingValidator.statusUpdateValidate(bookingId, ownerId, status);
 

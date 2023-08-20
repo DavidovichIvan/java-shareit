@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.DataBaseException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -119,7 +120,7 @@ public class BookingValidator {
                 .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + bookerId));
 
         checkPagingParametersAreCorrect(from, size);
-        PageRequest pageRequest = PageRequest.of(from, size);
+        PageRequest pageRequest = PageRequest.of(from, size, Sort.by("start").descending());
 
         List<Booking> searchResult = new ArrayList<>();
         switch (bookingsState) {
@@ -133,12 +134,12 @@ public class BookingValidator {
             case ("APPROVED"):
             case ("REJECTED"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndStatusIgnoreCaseOrderByStartDesc(bookerId, bookingsState, pageRequest);
+                        .findAllByBookerIdAndStatusIgnoreCase(bookerId, bookingsState, pageRequest);
                 break;
 
             case ("CURRENT"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
+                        .findAllByBookerIdAndStartBeforeAndEndAfter(bookerId,
                                 LocalDateTime.now(),
                                 LocalDateTime.now(),
                                 pageRequest);
@@ -146,14 +147,14 @@ public class BookingValidator {
                 break;
             case ("PAST"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId,
+                        .findAllByBookerIdAndEndBefore(bookerId,
                                 LocalDateTime.now(),
                                 pageRequest);
                 break;
 
             case ("FUTURE"):
                 searchResult = bookingRepository
-                        .findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId,
+                        .findAllByBookerIdAndStartAfter(bookerId,
                                 LocalDateTime.now(),
                                 pageRequest);
                 break;
@@ -179,7 +180,7 @@ public class BookingValidator {
                 .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + ownerId));
 
         checkPagingParametersAreCorrect(from, size);
-        PageRequest pageRequest = PageRequest.of(from, size);
+        PageRequest pageRequest = PageRequest.of(from, size, Sort.by("start").descending());
 
         List<Booking> searchResult = new ArrayList<>();
         switch (bookingsState) {
@@ -222,7 +223,10 @@ public class BookingValidator {
     }
 
     public Item addLastAndNextBookingInformation(Item i) {
-        bookingRepository.getLastBooking(i.getOwnerId(), i.getId(), LocalDateTime.now())
+       bookingRepository.getLastBooking(i.getOwnerId(),
+                        i.getId(),
+                        LocalDateTime.now(),
+                        PageRequest.of(0, 1, Sort.by("start").descending()))
                 .ifPresent(foundBooking -> {
                     BookingDto bookingDto = new BookingDto();
                     bookingDto.setId(foundBooking.getId());
@@ -232,7 +236,10 @@ public class BookingValidator {
                     i.setLastBooking(bookingDto);
                 });
 
-        bookingRepository.getNextBooking(i.getOwnerId(), i.getId(), LocalDateTime.now())
+        bookingRepository.getNextBooking(i.getOwnerId(),
+                        i.getId(),
+                        LocalDateTime.now(),
+                        PageRequest.of(0, 1, Sort.by("start").ascending()))
                 .ifPresent(foundBooking ->
                 {
                     BookingDto bookingDto = new BookingDto();

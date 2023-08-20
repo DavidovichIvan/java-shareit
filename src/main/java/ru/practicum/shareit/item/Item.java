@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Proxy;
+import lombok.Setter;
 import ru.practicum.shareit.booking.BookingDto;
 
 import javax.persistence.*;
@@ -11,15 +12,17 @@ import java.util.List;
 
 @Entity
 @Table(name = "items")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@Proxy(lazy = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Item {
 
     @Id
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    @EqualsAndHashCode.Include
+    private int id;
 
     @Column(name = "owner_id", nullable = false)
     private int ownerId;
@@ -33,13 +36,13 @@ public class Item {
     private int requestId;
 
     @Transient
-    BookingDto lastBooking;
+    private BookingDto lastBooking;
     @Transient
-    BookingDto nextBooking;
+    private BookingDto nextBooking;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
-    List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
     public Item(String name, String description, int ownerId) {
         this.name = name;
