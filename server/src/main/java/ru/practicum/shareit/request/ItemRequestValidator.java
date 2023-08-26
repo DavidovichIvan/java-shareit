@@ -19,16 +19,8 @@ public class ItemRequestValidator {
 
 
     public void requestSetCreationTime(ItemRequest request) {
-        /*
-        String text = request.getDescription();
-        if (text == null || text.isBlank()) {
-            throw new DataBaseException("Введен пустой комментарий, id пользователя: " + request.getRequesterId());
-        }
-        */
         request.setCreated(LocalDateTime.now());
     }
-
-
 
     public List<ItemRequest> formAnswersListForUser(int requesterId) {
         List<ItemRequest> userRequests = itemRequestRepository
@@ -55,13 +47,6 @@ public class ItemRequestValidator {
     }
 
     public List<ItemRequest> getOtherUsersRequestsPaginated(int requesterId, Integer startPage, Integer outputSize) {
-        /*
-        if (outputSize == null || outputSize <= 0) {
-            throw new DataBaseException("Количество объектов, подлежащих выводу на одной странице, должно быть положительным.");
-        }
-        if (startPage < 0) {
-            throw new DataBaseException("Номер начальной страницы не может быть отрицательным.");
-        }*/
 
         PageRequest pageRequest = PageRequest.of(startPage, outputSize);
 

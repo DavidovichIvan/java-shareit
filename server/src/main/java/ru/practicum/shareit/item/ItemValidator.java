@@ -22,18 +22,9 @@ public class ItemValidator {
     private final BookingRepository bookingRepository;
 
     public void itemValidate(int ownerId) {
-        /*
-        if (item.getName() == null ||
-                item.getName().isBlank() ||
-                item.getDescription() == null ||
-                item.getDescription().isBlank() ||
-                item.getAvailable() == null) {
-            throw new DataBaseException("Введены неполные данные при добавлении новой вещи.");
-        }
-       */
+
         User u = userRepository
                 .findById(ownerId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id: " + ownerId));
-
     }
 
     public void prepareItemToUpdate(int itemId, int userId, Item updItem) {
@@ -70,11 +61,6 @@ public class ItemValidator {
     }
 
     public Comment commentValidateAndCreate(int itemId, int authorId, String text) {
-       /*
-        if (text == null || text.isBlank()) {
-            throw new DataBaseException("Введен пустой комментарий");
-        }
-      */
 
         Booking book = bookingRepository.getByIdAndBookerId(itemId, authorId).orElseThrow(() -> new DataBaseException
                 ("Пользователь не может оставить отзыв так как он не арендовал вещь с id: " + itemId));

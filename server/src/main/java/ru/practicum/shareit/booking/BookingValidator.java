@@ -35,15 +35,6 @@ public class BookingValidator {
         }
 
         book.setBookerId(bookerId);
-        /*
-        if (book.getItemId() == null ||
-                book.getEnd() == null ||
-                book.getStart() == null ||
-                book.getBookerId() == null) {
-            throw new DataBaseException("Введены неполные данные при бронировании вещи.");
-        }
-
-         */
 
         itemValidator.checkItemExists(book.getItemId());
         userValidator.checkUserExists(bookerId);
@@ -122,7 +113,6 @@ public class BookingValidator {
                 .findById(bookerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + bookerId));
 
-        //checkPagingParametersAreCorrect(from, size);
         PageRequest pageRequest = PageRequest.of(from, size, Sort.by("start").descending());
 
         List<Booking> searchResult = new ArrayList<>();
@@ -182,7 +172,6 @@ public class BookingValidator {
                 .findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не зарегистрирован, id пользователя: " + ownerId));
 
-        //checkPagingParametersAreCorrect(from, size);
         PageRequest pageRequest = PageRequest.of(from, size, Sort.by("start").descending());
 
         List<Booking> searchResult = new ArrayList<>();
@@ -226,7 +215,7 @@ public class BookingValidator {
     }
 
     public Item addLastAndNextBookingInformation(Item i) {
-       bookingRepository.getLastBooking(i.getOwnerId(),
+        bookingRepository.getLastBooking(i.getOwnerId(),
                         i.getId(),
                         LocalDateTime.now(),
                         PageRequest.of(0, 1, Sort.by("start").descending()))
@@ -265,15 +254,4 @@ public class BookingValidator {
     public boolean isInEnum(String value) {
         return Arrays.stream(BookingSearchParameters.values()).anyMatch(e -> e.name().equals(value));
     }
-/*
-    private void checkPagingParametersAreCorrect(Integer from, Integer size) {
-        if (size == null || size <= 0) {
-            throw new DataBaseException("Количество объектов, подлежащих выводу на одной странице, должно быть положительным.");
-        }
-        if (from < 0) {
-            throw new DataBaseException("Номер начальной страницы не может быть отрицательным.");
-        }
-    }
-
- */
 }

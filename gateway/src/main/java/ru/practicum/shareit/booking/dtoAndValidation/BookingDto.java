@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.dtoAndValidate;
+package ru.practicum.shareit.booking.dtoAndValidation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

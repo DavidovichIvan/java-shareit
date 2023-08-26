@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.client.BookingClient;
-import ru.practicum.shareit.booking.dtoAndValidate.BookingDto;
+import ru.practicum.shareit.booking.dtoAndValidation.BookingDto;
 import ru.practicum.shareit.client.Headers;
 
 import javax.validation.Valid;
@@ -25,7 +25,8 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Object> createBooking(@RequestHeader(Headers.REQUESTER_ID) Long bookerId,
-                                          @RequestBody @Valid BookingDto bookingInputDto) {
+                                                @RequestBody @Valid BookingDto bookingInputDto) {
+        log.info("Запрос на новый букинг");
         return bookingClient.createBooking(bookerId, bookingInputDto);
     }
 
@@ -33,12 +34,14 @@ public class BookingController {
     public ResponseEntity<Object> approvedBooking(@RequestHeader(Headers.REQUESTER_ID) Long userId,
                                                   @PathVariable Long bookingId,
                                                   @RequestParam boolean approved) {
+        log.info("Запрос на изменение статуса букинга с id {}");
         return bookingClient.approvedBooking(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBookingById(@RequestHeader(Headers.REQUESTER_ID) Long userId,
-                                           @PathVariable @NotNull Long bookingId) {
+                                                 @PathVariable @NotNull Long bookingId) {
+        log.info("Запрос букинга с id {}", bookingId);
         return bookingClient.getBookingById(userId, bookingId);
     }
 
@@ -46,9 +49,10 @@ public class BookingController {
     public ResponseEntity<Object> getBookingByUser(@RequestHeader(Headers.REQUESTER_ID) Long userId,
                                                    @RequestParam(defaultValue = "ALL") String state,
                                                    @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                       Integer from,
+                                                   Integer from,
                                                    @Positive @RequestParam(name = "size", defaultValue = "20")
-                                                       Integer size) {
+                                                   Integer size) {
+        log.info("Запрос букингов пользователя с id {}", userId);
         return bookingClient.getBookingByUser(userId, state, from, size);
     }
 
@@ -56,9 +60,9 @@ public class BookingController {
     public ResponseEntity<Object> getBookingByOwner(@RequestHeader(Headers.REQUESTER_ID) Long ownerId,
                                                     @RequestParam(defaultValue = "ALL") String state,
                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                        Integer from,
+                                                    Integer from,
                                                     @Positive @RequestParam(name = "size", defaultValue = "20")
-                                                        Integer size) {
+                                                    Integer size) {
         return bookingClient.getBookingByOwner(ownerId, state, from, size);
     }
 
