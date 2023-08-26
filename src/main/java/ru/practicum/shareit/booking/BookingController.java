@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
@@ -30,23 +28,27 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public Booking getBooking(@PathVariable("bookingId") int bookingId,
-                              @RequestHeader("X-Sharer-User-Id") int bookRequestorId) {
-        return bookingService.getBookingResult(bookingId, bookRequestorId);
+                              @RequestHeader("X-Sharer-User-Id") int bookRequesterId) {
+        return bookingService.getBookingResult(bookingId, bookRequesterId);
     }
 
     @GetMapping()
     public List<Booking> getAllBookingsForBooker(@RequestHeader("X-Sharer-User-Id") int bookerId,
+                                                 @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                                 @RequestParam(value = "size", defaultValue = "20") Integer size,
                                                  @RequestParam(defaultValue = "ALL") String state) {
 
-        return bookingService.getAllBookingsForBooker(bookerId, state);
+        return bookingService.getAllBookingsForBooker(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<Booking> getAllBookingsForOwner(@RequestHeader("X-Sharer-User-Id") int ownerId,
+                                                @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                                @RequestParam(value = "size", defaultValue = "30") Integer size,
                                                 @RequestParam(defaultValue = "ALL") String state) {
         log.info("X-Sharer-User-Id=  " + ownerId);
         log.info("state=  " + state);
 
-        return bookingService.getAllBookingsForOwner(ownerId, state);
+        return bookingService.getAllBookingsForOwner(ownerId, state, from, size);
     }
 }

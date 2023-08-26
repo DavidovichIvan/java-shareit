@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BookingService {
 
     private final BookingRepository bookingRepository;
@@ -29,6 +28,7 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
+    @Transactional
     public Booking confirmBooking(Integer bookingId, Integer ownerId, String status) {
         bookingValidator.statusUpdateValidate(bookingId, ownerId, status);
 
@@ -38,7 +38,7 @@ public class BookingService {
                 .findById(bookingId).orElseThrow(() -> new NotFoundException("Не найден букинг с id: " + bookingId));
         book.setStatus(status);
         bookingRepository.save(book);
-      
+
         return book;
     }
 
@@ -47,11 +47,11 @@ public class BookingService {
         return bookingRepository.getById(bookingId);
     }
 
-    public List<Booking> getAllBookingsForBooker(int bookerId, String bookingsState) {
-        return bookingValidator.bookingsSearchValidate(bookerId, bookingsState);
+    public List<Booking> getAllBookingsForBooker(int bookerId, String bookingsState, Integer startPage, Integer outputSize) {
+        return bookingValidator.bookingsSearchValidate(bookerId, bookingsState, startPage, outputSize);
     }
 
-    public List<Booking> getAllBookingsForOwner(int ownerId, String bookingsState) {
-        return bookingValidator.bookingsForOwnerValidate(ownerId, bookingsState);
+    public List<Booking> getAllBookingsForOwner(int ownerId, String bookingsState, Integer startPage, Integer outputSize) {
+        return bookingValidator.bookingsForOwnerValidate(ownerId, bookingsState, startPage, outputSize);
     }
 }

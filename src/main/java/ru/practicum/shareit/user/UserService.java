@@ -13,7 +13,6 @@ import java.util.List;
 @Getter
 @Setter
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository repository;

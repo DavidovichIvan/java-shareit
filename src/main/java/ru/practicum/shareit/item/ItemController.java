@@ -41,9 +41,9 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public Comment updItem(@PathVariable("itemId") int itemId,
-                           @RequestHeader("X-Sharer-User-Id") int userId,
-                           @RequestBody Comment requestBody) {            //тут пока не понял Comment comment или строкой String comment
+    public Comment addComment(@PathVariable("itemId") int itemId,
+                              @RequestHeader("X-Sharer-User-Id") int userId,
+                              @RequestBody Comment requestBody) {
         return itemService.addComment(itemId, userId, requestBody.getText());
     }
 
