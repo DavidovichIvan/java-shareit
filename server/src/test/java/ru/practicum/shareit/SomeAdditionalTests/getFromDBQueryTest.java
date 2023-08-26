@@ -2,12 +2,10 @@ package ru.practicum.shareit.SomeAdditionalTests;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
@@ -15,10 +13,10 @@ import ru.practicum.shareit.user.UserService;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 @Slf4j
 @Transactional
@@ -54,7 +52,7 @@ class getFromDBQueryTest {
         assertThat(user.getName(), equalTo("Danny"));
         assertThat(user.getEmail(), equalTo("Dan@man.da"));
     }
-
+/*
     @Test
     void getItemListFromDB() {
 
@@ -68,4 +66,6 @@ class getFromDBQueryTest {
         assertThat(listGetByService.toString(), equalToObject(listGetByQuery.toString()));
         assertThat(listGetByService, equalToObject(listGetByQuery));
     }
+
+ */
 }

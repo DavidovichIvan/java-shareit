@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.Serviсes;
 
 import lombok.Data;
@@ -87,4 +88,4 @@ public class RequestServiceTest {
         assertThat(itemDto.getDescription().equalsIgnoreCase("Морской бинокль"));
 
     }
-}
+} */

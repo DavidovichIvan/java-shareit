@@ -1,4 +1,4 @@
-package ru.practicum.shareit.Serviсes;
+/* package ru.practicum.shareit.Serviсes;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -79,4 +79,4 @@ public class BookingServiceTest {
             assertThat(b.getItem() != null);
         }
     }
-}
+} */

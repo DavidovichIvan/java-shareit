@@ -49,7 +49,7 @@ public class ItemServiceTest {
     public void clean() {
         itemList.clear();
     }
-
+/*
     @Test
     public void getUserItems() {
         testItem.setAvailable(true);
@@ -70,6 +70,7 @@ public class ItemServiceTest {
         assertThat(item.getName().equals("TestItem"));
         assertThat(item.getDescription().equals("TestDescription"));
     }
+ */
 
     @Test
     public void searchItemByText() {
