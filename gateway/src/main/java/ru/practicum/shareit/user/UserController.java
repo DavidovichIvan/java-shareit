@@ -20,33 +20,28 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> createUser(@RequestBody
-                                                 @Validated({ValidationMarker.OnCreate.class}) UserDto userDto) {
-        log.info("Запрос на создание пользователя");
+                                             @Validated({ValidationMarker.OnCreate.class}) UserDto userDto) {
         return userClient.createUser(userDto);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> updateUser(@RequestBody @Validated({ValidationMarker.OnUpdate.class}) UserDto userDto,
-                              @PathVariable Long id) {
-        log.info("Запрос на обновление пользователя с id {}", userDto.getId());
+                                             @PathVariable Long id) {
         return userClient.updateUser(userDto, id);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        log.info("Запрос на удаление пользователя с id {}", id);
         userClient.deleteUser(id);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUser(@PathVariable Long id) {
-        log.info("Запрос данных пользователя id {}", id);
         return userClient.getUser(id);
     }
 
     @GetMapping
     public ResponseEntity<Object> getAllUsers() {
-        log.info("Запрос всех пользователей");
         return userClient.getAllUsers();
     }
 

@@ -1,46 +1,46 @@
 package ru.practicum.shareit.item.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.client.BaseClient;
+import ru.practicum.shareit.client.RestCreator;
 import ru.practicum.shareit.item.dtoAndValidation.CommentDto;
 import ru.practicum.shareit.item.dtoAndValidation.ItemDto;
 
 import java.util.Map;
 
-@Service
+@Slf4j
+@Component
+@Profile("someProfile")
 public class ItemClient extends BaseClient {
 
     private static final String API_PREFIX = "/items";
 
     @Autowired
-    public ItemClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory((serverUrl + API_PREFIX)))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+    public ItemClient(RestCreator restCreator) {
+        super(restCreator.createRestTemplate(API_PREFIX));
     }
 
     public ResponseEntity<Object> createItem(Long userId, ItemDto itemDto) {
+        log.debug("POST Item from User: {}, booking: {}", userId, itemDto);
         return post("", userId, itemDto);
     }
 
     public ResponseEntity<Object> updateItem(Long userId, Long itemId, ItemDto itemDto) {
+        log.debug("PATCH Item: {} from User: {},  updated Item: {},", itemId, userId, itemDto);
         return patch("/" + itemId, userId, itemDto);
     }
 
     public ResponseEntity<Object> getItem(Long itemId, Long userId) {
+        log.debug("GET Item id: {} from User id: {}", itemId, userId);
         return get("/" + itemId, userId);
     }
 
-    public ResponseEntity<Object> getItemsOwners(Long userId, Integer from, Integer size) {
+    public ResponseEntity<Object> getItemsForOwner(Long userId, Integer from, Integer size) {
+        log.debug("GET all items for owner User id: {}, from: {}, size: {}", userId, from, size);
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size
@@ -49,6 +49,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> searchItems(String text, Integer from, Integer size) {
+        log.debug("GET Items by search parameter: {}", text);
         Map<String, Object> parameters = Map.of(
                 "text", text,
                 "from", from,
@@ -58,6 +59,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createComment(Long userId, Long itemId, CommentDto commentDto) {
+        log.debug("POST Comment to Item id: {} by User id: {}", itemId, userId);
         return post("/" + itemId + "/comment", userId, commentDto);
     }
 

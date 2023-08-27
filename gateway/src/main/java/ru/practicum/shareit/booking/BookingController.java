@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,6 @@ import javax.validation.constraints.PositiveOrZero;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Validated
-@Slf4j
 public class BookingController {
 
     private final BookingClient bookingClient;
@@ -26,7 +24,6 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> createBooking(@RequestHeader(Headers.REQUESTER_ID) Long bookerId,
                                                 @RequestBody @Valid BookingDto bookingInputDto) {
-        log.info("Запрос на новый букинг");
         return bookingClient.createBooking(bookerId, bookingInputDto);
     }
 
@@ -34,14 +31,12 @@ public class BookingController {
     public ResponseEntity<Object> approvedBooking(@RequestHeader(Headers.REQUESTER_ID) Long userId,
                                                   @PathVariable Long bookingId,
                                                   @RequestParam boolean approved) {
-        log.info("Запрос на изменение статуса букинга с id {}");
         return bookingClient.approvedBooking(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBookingById(@RequestHeader(Headers.REQUESTER_ID) Long userId,
                                                  @PathVariable @NotNull Long bookingId) {
-        log.info("Запрос букинга с id {}", bookingId);
         return bookingClient.getBookingById(userId, bookingId);
     }
 
@@ -52,7 +47,6 @@ public class BookingController {
                                                    Integer from,
                                                    @Positive @RequestParam(name = "size", defaultValue = "20")
                                                    Integer size) {
-        log.info("Запрос букингов пользователя с id {}", userId);
         return bookingClient.getBookingByUser(userId, state, from, size);
     }
 
